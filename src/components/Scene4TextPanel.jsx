@@ -74,9 +74,9 @@ const Scene4TextPanel = ({ animationStarted }) => {
         isOpen={activeOverlay !== null}
         onClose={() => setActiveOverlay(null)}
         imageSrc={
-          activeOverlay === 'core'      ? '/real-world/scene4-core.png' :
-          activeOverlay === 'turbine'   ? '/real-world/scene4-turbine.jpg' :
-                                         '/real-world/scene4-generator.jpeg'
+          activeOverlay === 'core'      ? `${import.meta.env.BASE_URL}real-world/scene4-core.png` :
+          activeOverlay === 'turbine'   ? `${import.meta.env.BASE_URL}real-world/scene4-turbine.jpg` :
+                                         `${import.meta.env.BASE_URL}real-world/scene4-generator.jpeg`
         }
         imageLabel={
           activeOverlay === 'core'      ? 'The reactor pressure vessel and fuel assemblies' :

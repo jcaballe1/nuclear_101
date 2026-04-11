@@ -5,12 +5,12 @@ import './Scene6TextPanel.css';
 
 const OVERLAYS = {
   pool: {
-    imageSrc: '/real-world/scene6-spent-fuel.jpg',
+    imageSrc: `${import.meta.env.BASE_URL}real-world/scene6-spent-fuel.jpg`,
     imageLabel: 'A glowing blue spent fuel pool',
     caption: 'Spent fuel pools emit an ethereal blue Cherenkov glow as water shields and cools the rods. After a few years of cooling, the fuel is cool enough to move to dry cask storage.',
   },
   cask: {
-    imageSrc: '/real-world/scene6-dry-cask.jpg',
+    imageSrc: `${import.meta.env.BASE_URL}real-world/scene6-dry-cask.jpg`,
     imageLabel: 'Dry storage casks standing outdoors at a nuclear facility',
     caption: 'Dry casks are massive steel-and-concrete cylinders. They require no power, no pumps, no active cooling, passive safety engineering that keeps spent fuel contained for decades.',
   },

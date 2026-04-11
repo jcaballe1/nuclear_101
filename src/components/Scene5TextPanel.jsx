@@ -64,9 +64,9 @@ const Scene5TextPanel = () => {
         isOpen={activeOverlay !== null}
         onClose={() => setActiveOverlay(null)}
         imageSrc={
-          activeOverlay === 'paper'   ? '/real-world/scene5-alpha-ppe.jpg' :
-          activeOverlay === 'acrylic' ? '/real-world/scene5-beta-glovebox.png' :
-                                        '/real-world/scene5-containment.png'
+          activeOverlay === 'paper'   ? `${import.meta.env.BASE_URL}real-world/scene5-alpha-ppe.jpg` :
+          activeOverlay === 'acrylic' ? `${import.meta.env.BASE_URL}real-world/scene5-beta-glovebox.png` :
+                                        `${import.meta.env.BASE_URL}real-world/scene5-containment.png`
         }
         imageLabel={
           activeOverlay === 'paper'   ? 'A worker in a basic Tyvek PPE suit' :

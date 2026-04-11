@@ -95,7 +95,7 @@ const Scene3TextPanel = ({ reactionStarted, controlRodPosition, temperature }) =
       <RealWorldOverlay
         isOpen={showOverlay}
         onClose={() => setShowOverlay(false)}
-        imageSrc="/real-world/scene3-control-rods.jpg"
+        imageSrc={`${import.meta.env.BASE_URL}real-world/scene3-control-rods.jpg`}
         imageLabel="Engineers inspecting a massive control rod assembly in a nuclear reactor"
         caption="Control rods can be 3–4 metres long and are made of neutron-absorbing materials such as cadmium, hafnium, or boron carbide."
       />

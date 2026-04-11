@@ -128,7 +128,7 @@ const TextPanel = ({ isotopeType, showFission, onFissionDismiss, onFissionNext }
       <RealWorldOverlay
         isOpen={showOverlay}
         onClose={() => setShowOverlay(false)}
-        imageSrc="/real-world/scene1-fuel-pellet.jpg"
+        imageSrc={`${import.meta.env.BASE_URL}real-world/scene1-fuel-pellet.jpg`}
         imageLabel="Uranium-235 fuel pellet held in a gloved hand"
         caption="One fuel pellet holds the energy equivalent of approximately 1 ton of coal — small enough to balance on your fingertip."
       />
