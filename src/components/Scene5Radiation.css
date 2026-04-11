@@ -1,0 +1,25 @@
+.scene5-radiation {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.scene5-content {
+  display: flex;
+  gap: 2rem;
+  height: 100%;
+  width: 100%;
+}
+
+.visualization-controls-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

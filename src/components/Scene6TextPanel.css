@@ -1,0 +1,186 @@
+.scene6-text-panel {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem 1.5rem 1.25rem;
+  border: 2px solid #1a1a1a;
+  box-shadow: 4px 4px 0px 0px #0f172a;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.3) rgba(241, 245, 249, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.scene6-text-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scene6-text-panel::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.5);
+  border-radius: 10px;
+}
+
+.scene6-text-panel::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.3);
+  border-radius: 10px;
+}
+
+.scene6-text-panel .text-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.scene6-text-panel .panel-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-family: 'Lora', Georgia, serif;
+  color: #1a1a1a;
+  margin: 0 0 0.4rem 0;
+}
+
+.rwv-toggle-btn {
+  background: rgba(197, 160, 89, 0.1);
+  color: #b8904d;
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
+}
+
+.rwv-toggle-btn:hover {
+  background: rgba(197, 160, 89, 0.2);
+  border-color: #C5A059;
+  transform: translateY(-1px);
+}
+
+.rwv-toggle-btn:active {
+  transform: translateY(0);
+}
+
+.scene6-text-panel .intro-section {
+  background: rgba(16, 185, 129, 0.06);
+  border-left: 3px solid #10b981;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.scene6-text-panel .intro-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #334155;
+  margin: 0;
+}
+
+.scene6-text-panel .stages {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.scene6-text-panel .stage {
+  padding: 1rem;
+  background: #F9F8F4;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s ease;
+}
+
+.scene6-text-panel .stage:hover {
+  transform: translateX(4px);
+  background: #fff;
+}
+
+.scene6-text-panel .stage-number {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin: 0 0 0.25rem 0;
+  letter-spacing: 0.05em;
+}
+
+.scene6-text-panel .stage-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: 'Lora', Georgia, serif;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem 0;
+}
+
+.scene6-text-panel .stage-text {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #475569;
+  margin: 0;
+}
+
+/* ── Two-button RWV row ─────────────────────────────────── */
+.rwv-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.2rem;
+}
+.rwv-sm {
+  padding: 0.22rem 0.62rem !important;
+  font-size: 0.72rem !important;
+  margin-bottom: 0 !important;
+  align-self: auto !important;
+}
+
+/* ── Lifecycle step cards ───────────────────────────────── */
+.s6-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.s6-step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: transform 0.15s ease;
+}
+.s6-step-card:hover { transform: translateX(3px); }
+
+.s6-step-1 { background: rgba(59,130,246,0.06);  border-color: rgba(59,130,246,0.18); }
+.s6-step-2 { background: rgba(100,116,139,0.06); border-color: rgba(100,116,139,0.18); }
+.s6-step-3 { background: rgba(16,185,129,0.06);  border-color: rgba(16,185,129,0.18); }
+
+.s6-step-num {
+  flex-shrink: 0;
+  width: 1.9rem; height: 1.9rem;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.88rem;
+}
+.s6-step-1 .s6-step-num { background: rgba(59,130,246,0.15);  color: #1d4ed8; }
+.s6-step-2 .s6-step-num { background: rgba(100,116,139,0.15); color: #475569; }
+.s6-step-3 .s6-step-num { background: rgba(16,185,129,0.15);  color: #059669; }
+
+.s6-step-title {
+  display: block;
+  font-size: 0.87rem; font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+.s6-step-1 .s6-step-title { color: #1d4ed8; }
+.s6-step-2 .s6-step-title { color: #475569; }
+.s6-step-3 .s6-step-title { color: #059669; }
+
+.s6-step-text {
+  font-size: 0.81rem;
+  line-height: 1.55;
+  color: #475569;
+  margin: 0;
+}

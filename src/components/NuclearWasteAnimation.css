@@ -1,0 +1,545 @@
+/* --------------- NUCLEAR WASTE ANIMATION --------------- */
+.nwa-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem 0.65rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #e2e8f0;
+  overflow: hidden;
+  background: transparent;
+  border-radius: 12px;
+}
+
+/* -- PROGRESS STEPPER -- */
+.nwa-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
+.nwa-prog-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 80px;
+}
+.nwa-prog-dot {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.9rem;
+  background: #e2e8f0; color: #94a3b8;
+  border: 2px solid #cbd5e1;
+  transition: all 0.4s ease;
+}
+.nwa-prog-step.active .nwa-prog-dot,
+.nwa-prog-step.waiting .nwa-prog-dot {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white; border-color: #fbbf24;
+  box-shadow: 0 0 12px rgba(245,158,11,0.5);
+}
+.nwa-prog-step.done .nwa-prog-dot {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white; border-color: #34d399;
+  box-shadow: 0 0 10px rgba(16,185,129,0.5);
+}
+.nwa-prog-label {
+  font-size: 0.68rem; font-weight: 600;
+  color: #94a3b8; text-transform: uppercase;
+  letter-spacing: 0.04em; text-align: center;
+}
+.nwa-prog-step.active .nwa-prog-label,
+.nwa-prog-step.waiting .nwa-prog-label { color: #d97706; }
+.nwa-prog-step.done .nwa-prog-label    { color: #059669; }
+.nwa-prog-line {
+  flex: 1; max-width: 70px; height: 2px;
+  background: rgba(255,255,255,0.12); margin-bottom: 20px;
+  transition: background 0.5s ease;
+}
+.nwa-prog-line.lit {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+/* -- STAGE LAYOUT -- */
+.nwa-stages {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  gap: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.nwa-connector {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+
+/* -- CARDS -- */
+.nwa-card {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border-radius: 0;
+  padding: 0.9rem 0.85rem 0.75rem;
+  border: none;
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column;
+  min-width: 0; overflow: hidden;
+  transition: background 0.3s;
+}
+.nwa-card:hover { z-index: 10; }
+.nwa-card.nwa-card-active {
+  background: rgba(245,158,11,0.07);
+}
+.nwa-card.nwa-card-done {
+  background: rgba(16,185,129,0.06);
+}
+.nwa-card-a { border-top: 2px solid #f59e0b; }
+.nwa-card-b { border-top: 2px solid #3b82f6; }
+.nwa-card-c { border-top: 2px solid #10b981; }
+
+.nwa-card-header {
+  display: flex; align-items: flex-start;
+  gap: 0.75rem; margin-bottom: 1.1rem;
+}
+.nwa-card-header h4 {
+  margin: 0 0 0.15rem 0;
+  font-size: 1.05rem; font-weight: 700; color: #f1f5f9;
+}
+.nwa-card-header p {
+  margin: 0; font-size: 0.76rem;
+  color: #64748b; line-height: 1.4;
+}
+
+/* -- BADGES -- */
+.nwa-badge {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.85rem; flex-shrink: 0;
+  background: #e2e8f0; color: #64748b;
+  border: 2px solid #cbd5e1; transition: all 0.4s;
+}
+.nwa-badge-active, .nwa-badge-waiting {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white; border-color: #fbbf24;
+  box-shadow: 0 0 10px rgba(245,158,11,0.45);
+}
+.nwa-badge-done {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white; border-color: #34d399;
+  box-shadow: 0 0 10px rgba(16,185,129,0.4);
+}
+
+/* -- ROW -- */
+.nwa-row {
+  display: flex; align-items: center;
+  gap: 1rem; flex: 1;
+  flex-wrap: wrap; justify-content: center;
+  position: relative;
+}
+.nwa-arrow { font-size: 1.3rem; color: #94a3b8; flex-shrink: 0; }
+.nwa-label { font-size: 0.75rem; font-weight: 600; color: #64748b; text-align: center; }
+
+/* -- REACTOR -- */
+.nwa-reactor {
+  position: relative;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.35rem;
+}
+.nwa-reactor-tower { display: flex; flex-direction: column; align-items: center; }
+.nwa-reactor-dome {
+  width: 46px; height: 26px;
+  background: linear-gradient(180deg, #94a3b8, #64748b);
+  border-radius: 23px 23px 0 0;
+  border: 2px solid #475569; border-bottom: none;
+}
+.nwa-reactor-body {
+  width: 56px; height: 70px;
+  background: linear-gradient(180deg, #64748b, #334155);
+  border: 2px solid #475569; border-top: none;
+  border-radius: 0 0 5px 5px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 7px; position: relative; overflow: hidden;
+}
+.nwa-reactor-glow {
+  width: 18px; height: 18px;
+  background: radial-gradient(circle, #fde68a, #f59e0b);
+  border-radius: 50%;
+  box-shadow: 0 0 18px rgba(245,158,11,0.9);
+  animation: nwaReactorPulse 1.8s infinite alternate;
+}
+@keyframes nwaReactorPulse {
+  0%   { box-shadow: 0 0 10px rgba(245,158,11,0.6); transform: scale(1); }
+  100% { box-shadow: 0 0 28px rgba(245,158,11,1);   transform: scale(1.15); }
+}
+.nwa-reactor-vent {
+  width: 30px; height: 4px;
+  background: rgba(255,255,255,0.12); border-radius: 2px;
+}
+
+/* -- DRAGGABLE FUEL ROD -- */
+.nwa-rod {
+  position: absolute; top: -58px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  cursor: grab; user-select: none;
+}
+.nwa-rod:active { cursor: grabbing; }
+.nwa-rod-shape { display: flex; flex-direction: column; align-items: center; }
+.nwa-rod-cap {
+  width: 10px; height: 9px;
+  background: linear-gradient(180deg, #fde68a, #f59e0b);
+  border-radius: 50% 50% 0 0;
+  box-shadow: 0 0 8px rgba(251,191,36,0.7);
+}
+.nwa-rod-body-bar {
+  width: 12px; height: 40px;
+  background: linear-gradient(180deg, #ef4444, #b91c1c);
+  border: 1px solid #dc2626;
+  position: relative; overflow: hidden;
+}
+.nwa-rod-body-bar::after {
+  content: '';
+  position: absolute; top: 0; left: 30%;
+  width: 2px; height: 100%;
+  background: rgba(255,255,255,0.18);
+}
+.nwa-rod-foot {
+  width: 16px; height: 7px;
+  background: linear-gradient(180deg, #475569, #334155);
+  border-radius: 2px;
+}
+.nwa-rod-tag {
+  font-size: 0.65rem; font-weight: 700; color: #fbbf24;
+  background: rgba(15,23,42,0.75);
+  padding: 2px 6px; border-radius: 4px; white-space: nowrap;
+}
+
+/* -- COOLING POOL -- */
+.nwa-pool {
+  position: relative;
+  width: 165px; height: 150px;
+  background: #0c4a6e;
+  border: 3px solid #0284c7;
+  border-radius: 10px;
+  overflow: visible;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 22px),
+    repeating-linear-gradient(0deg,  rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 22px);
+}
+.nwa-pool.nwa-pool-target {
+  border-color: #38bdf8;
+  box-shadow: 0 0 22px rgba(56,189,248,0.6), inset 0 0 18px rgba(56,189,248,0.2);
+  transform: scale(1.03);
+}
+.nwa-pool-water {
+  position: absolute; inset: 4px;
+  background: linear-gradient(180deg, rgba(56,189,248,0.22), rgba(3,105,161,0.85));
+  border-radius: 7px; overflow: hidden;
+  transition: all 0.9s ease;
+}
+.nwa-pool-water.nwa-cherenkov {
+  background: radial-gradient(ellipse at 50% 65%, #1d4ed8, #1e3a8a);
+  box-shadow: inset 0 0 30px rgba(59,130,246,0.9), 0 0 18px rgba(59,130,246,0.5);
+  animation: nwaCherenkov 1.8s infinite alternate;
+}
+@keyframes nwaCherenkov {
+  0%   { filter: brightness(1); }
+  100% { filter: brightness(1.25) saturate(1.2); }
+}
+.nwa-shimmer {
+  position: absolute; top: 0; left: -100%;
+  width: 200%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+  animation: nwaShimmer 2.8s infinite linear;
+}
+@keyframes nwaShimmer {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(50%); }
+}
+
+/* -- BUBBLES -- */
+.nwa-bubbles { position: absolute; inset: 0; pointer-events: none; }
+.nwa-bubble { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.55); }
+.nwa-bubble-0 { width: 5px; height: 5px; }
+.nwa-bubble-1 { width: 7px; height: 7px; }
+.nwa-bubble-2 { width: 4px; height: 4px; }
+
+/* -- SUBMERGED ROD -- */
+.nwa-submerged-wrap {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+.nwa-submerged-rod {
+  width: 12px; height: 58px;
+  background: linear-gradient(180deg, #fde68a 0%, #ef4444 30%, #b91c1c 100%);
+  border-radius: 4px 4px 2px 2px;
+  box-shadow: 0 0 10px rgba(251,191,36,0.7), 0 0 4px rgba(96,165,250,0.4);
+}
+.nwa-rod-cooled .nwa-submerged-rod {
+  animation: nwaRodCooled 1.4s infinite alternate;
+}
+@keyframes nwaRodCooled {
+  0%   { box-shadow: 0 0 8px rgba(96,165,250,0.5); }
+  100% { box-shadow: 0 0 24px rgba(96,165,250,1), 0 0 44px rgba(96,165,250,0.3); }
+}
+
+/* -- COOLDOWN BAR -- */
+.nwa-cooldown-bar {
+  position: absolute; bottom: -26px; left: 0; right: 0;
+  height: 18px; background: #e2e8f0;
+  border-radius: 0 0 8px 8px; overflow: hidden;
+  display: flex; align-items: center;
+}
+.nwa-cooldown-fill {
+  position: absolute; left: 0; top: 0; height: 100%;
+  background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+  border-radius: 0 3px 3px 0;
+}
+.nwa-cooldown-text {
+  position: relative; z-index: 2;
+  font-size: 0.62rem; font-weight: 700; color: #0c4a6e; padding-left: 6px;
+}
+
+.nwa-pool-label {
+  position: absolute; bottom: -42px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.74rem; color: #64748b; font-weight: 600; white-space: nowrap;
+}
+
+/* -- DRAG HINT -- */
+.nwa-hint {
+  background: rgba(59,130,246,0.15);
+  color: #93c5fd;
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+  border: 1px solid rgba(59,130,246,0.35); white-space: nowrap;
+}
+
+/* -- DRY CASK -- */
+.nwa-cask-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
+.nwa-cask {
+  width: 88px; height: 145px;
+  background: linear-gradient(180deg, #334155, #1e293b);
+  border: 2px solid #475569;
+  border-radius: 8px 8px 5px 5px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.nwa-cask-wrap.nwa-cask-target .nwa-cask {
+  border-color: #10b981;
+  box-shadow: 0 0 22px rgba(16,185,129,0.55), inset 0 0 14px rgba(16,185,129,0.12);
+}
+.nwa-cask-stripe {
+  position: absolute; top: 0; left: 0; right: 0; height: 9px;
+  background: repeating-linear-gradient(90deg, #f59e0b 0, #f59e0b 10px, #1e293b 10px, #1e293b 20px);
+}
+.nwa-cask-inner {
+  position: absolute; inset: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nwa-cask-rod {
+  width: 12px; height: 52px;
+  background: linear-gradient(180deg, #fde68a 0%, #ef4444 25%, #b91c1c 100%);
+  border-radius: 3px;
+  box-shadow: 0 0 12px rgba(251,191,36,0.6);
+}
+.nwa-cask-lid {
+  position: absolute; top: 0; left: 0; right: 0; height: 20px;
+  background: linear-gradient(180deg, #0f172a, #1e293b);
+  border-bottom: 2px solid #f59e0b;
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 0 14px; z-index: 5;
+}
+.nwa-bolt {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #94a3b8; border: 1px solid #64748b;
+}
+.nwa-claws {
+  position: absolute; top: -10px; width: 100%;
+  display: flex; justify-content: space-around;
+  padding: 0 8px; z-index: 10;
+}
+.nwa-claw {
+  width: 13px; height: 26px;
+  background: #94a3b8; border: 2px solid #64748b;
+  border-radius: 3px; position: relative;
+}
+.nwa-claw::after {
+  content: ''; position: absolute; bottom: -8px; left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent; border-right: 5px solid transparent;
+  border-top: 8px solid #94a3b8;
+}
+
+/* -- SENSOR -- */
+.nwa-sensor { display: flex; flex-direction: column; align-items: center; gap: 0.45rem; position: relative; }
+.nwa-sensor-body {
+  width: 62px; height: 68px;
+  background: #f1f5f9; border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 8px; padding: 8px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+.nwa-sensor-window {
+  width: 34px; height: 34px; background: #e2e8f0;
+  border: 2px solid #cbd5e1; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nwa-sensor-dot {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #cbd5e1; transition: all 0.5s ease;
+}
+.nwa-sensor.nwa-sensor-safe .nwa-sensor-dot {
+  background: radial-gradient(circle, #4ade80, #16a34a);
+  box-shadow: 0 0 14px rgba(74,222,128,0.9);
+  animation: nwaSafeDot 1.4s infinite alternate;
+}
+@keyframes nwaSafeDot {
+  0%   { opacity: 0.85; }
+  100% { opacity: 1; transform: scale(1.1); }
+}
+.nwa-sensor-scale {
+  width: 22px; height: 7px;
+  background: linear-gradient(90deg, #16a34a 0%, #ca8a04 50%, #dc2626 100%);
+  border-radius: 4px;
+}
+.nwa-sensor-label {
+  font-size: 0.68rem; font-weight: 700; color: #94a3b8;
+  text-transform: uppercase; letter-spacing: 0.03em; text-align: center;
+}
+.nwa-sensor.nwa-sensor-safe .nwa-sensor-label { color: #16a34a; }
+.nwa-sensor-ring {
+  position: absolute; top: 50%; left: 50%;
+  width: 50px; height: 50px; margin: -25px 0 0 -25px;
+  border: 2px solid rgba(74,222,128,0.5); border-radius: 50%;
+  pointer-events: none;
+}
+
+/* -- RECYCLE BUTTON -- */
+.nwa-recycle-btn {
+  display: block; width: 100%; margin-top: 1rem;
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white; border: none; border-radius: 10px;
+  font-size: 0.95rem; font-weight: 700; cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.nwa-recycle-btn:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* -- RECYCLING ZONE -- */
+.nwa-recycling-zone { min-height: 100px; display: flex; flex-direction: column; }
+.nwa-recycling-idle {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0.5rem; opacity: 0.45; padding: 1.5rem;
+}
+.nwa-recycling-idle span { font-size: 2rem; }
+.nwa-recycling-idle p { margin: 0; font-size: 0.82rem; color: #94a3b8; }
+.nwa-facility {
+  display: flex; flex-direction: column; gap: 0.75rem;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 0.85rem;
+}
+
+/* -- PROCESS PIPELINE -- */
+.nwa-pipeline {
+  display: flex; align-items: center;
+  justify-content: space-around; gap: 0.25rem;
+}
+.nwa-pipe-stage {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.4rem;
+  flex: 1; min-width: 60px;
+}
+.nwa-pipe-arrow { font-size: 1.1rem; color: #94a3b8; flex-shrink: 0; padding-bottom: 1.2rem; }
+.nwa-pipe-icon { font-size: 1.8rem; }
+.nwa-pipe-placeholder { font-size: 1.6rem; opacity: 0.3; min-height: 65px; display: flex; align-items: center; }
+.nwa-pipe-name {
+  font-size: 0.65rem; font-weight: 700; color: #94a3b8;
+  text-transform: uppercase; letter-spacing: 0.04em; text-align: center;
+}
+.nwa-pipe-check { font-size: 1rem; color: #10b981; font-weight: 900; }
+
+/* -- CHEMICAL BATH -- */
+.nwa-bath {
+  width: 80px; height: 65px;
+  background: linear-gradient(180deg, rgba(167,139,250,0.2), rgba(139,92,246,0.5));
+  border: 2px solid #8b5cf6; border-radius: 8px;
+  position: relative; overflow: hidden;
+}
+.nwa-bath-liquid { width: 100%; height: 100%; position: relative; }
+.nwa-bath-rod {
+  width: 9px; height: 38px;
+  background: linear-gradient(180deg, #fde68a, #dc2626);
+  border-radius: 3px; position: absolute; left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 8px rgba(251,191,36,0.7);
+}
+.nwa-bath-bub {
+  position: absolute; width: 5px; height: 5px;
+  background: rgba(196,181,253,0.7); border-radius: 50%;
+}
+.nwa-bath-label {
+  position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
+  font-size: 0.6rem; color: #7c3aed; font-weight: 700; white-space: nowrap;
+  background: rgba(255,255,255,0.85); padding: 1px 5px; border-radius: 3px;
+}
+
+/* -- SEPARATION -- */
+.nwa-sep-stage { min-width: 110px; }
+.nwa-separation { display: flex; align-items: flex-end; gap: 0.75rem; }
+.nwa-sep-item { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+.nwa-sep-block {
+  width: 44px; height: 40px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.nwa-sep-red {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  box-shadow: 0 3px 10px rgba(239,68,68,0.45);
+}
+.nwa-sep-blue {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  box-shadow: 0 3px 10px rgba(59,130,246,0.45);
+  animation: nwaFuelGlow 2s infinite alternate;
+}
+@keyframes nwaFuelGlow {
+  0%   { box-shadow: 0 3px 10px rgba(59,130,246,0.35); }
+  100% { box-shadow: 0 3px 22px rgba(59,130,246,0.85); }
+}
+.nwa-sep-bar { height: 5px; border-radius: 3px; }
+.nwa-bar-red  { background: #ef4444; width: 28px; }
+.nwa-bar-blue { background: #3b82f6; width: 80px; }
+.nwa-sep-pct  { font-size: 0.72rem; font-weight: 800; color: #cbd5e1; }
+.nwa-sep-desc { font-size: 0.62rem; color: #64748b; font-weight: 600; text-align: center; white-space: nowrap; }
+
+/* -- CONVEYOR -- */
+.nwa-conveyor { display: flex; flex-direction: column; gap: 0.35rem; }
+.nwa-conveyor-track {
+  position: relative; height: 34px;
+  background: repeating-linear-gradient(90deg, #e2e8f0, #e2e8f0 16px, #cbd5e1 16px, #cbd5e1 32px);
+  border: 2px solid #94a3b8; border-radius: 6px; overflow: hidden;
+}
+.nwa-pkg {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  font-size: 1.2rem; filter: drop-shadow(0 0 6px rgba(59,130,246,0.6));
+}
+.nwa-conveyor-label {
+  font-size: 0.74rem; font-weight: 700; color: #059669; text-align: center;
+}

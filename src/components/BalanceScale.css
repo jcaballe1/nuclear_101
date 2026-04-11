@@ -1,0 +1,321 @@
+/* ── Digital Mass Balance ─────────────────────────────────────────── */
+.dmb-container {
+  background: #0f172a;
+  border-radius: 12px;
+  border: 2px solid #1a1a1a;
+  box-shadow: 4px 4px 0px 0px #0f172a, 0 0 30px rgba(251, 191, 36, 0.08);
+  padding: 0.9rem 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dmb-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.dmb-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #C5A059;
+  text-transform: uppercase;
+}
+
+.dmb-subtitle {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-family: 'Courier New', monospace;
+}
+
+/* ── Three-column body ────────────────────────────────────────────── */
+.dmb-body {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* ── Left / Right sides ───────────────────────────────────────────── */
+.dmb-side {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.dmb-side-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #475569;
+  text-transform: uppercase;
+}
+
+.dmb-readout {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.dmb-nuclide {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.dmb-nuclide-u  { color: #c4b5fd; background: rgba(196,181,253,0.12); }
+.dmb-nuclide-ba { color: #f9a8d4; background: rgba(249,168,212,0.12); }
+.dmb-nuclide-kr { color: #7dd3fc; background: rgba(125,211,252,0.12); }
+.dmb-nuclide-n  { color: #fde68a; background: rgba(253,230,138,0.12); }
+
+.dmb-plus {
+  color: #475569;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Monospace digital mass readout */
+.dmb-mass {
+  font-family: 'Courier New', monospace;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.dmb-mass-left  { color: #a78bfa; }
+.dmb-mass-right { color: #60a5fa; }
+
+/* ── Centre: delta-m + arrow + badge ─────────────────────────────── */
+.dmb-centre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.dmb-delta-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #ef4444;
+  text-transform: uppercase;
+}
+
+.dmb-delta-value {
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f87171;
+  text-shadow: 0 0 12px rgba(248,113,113,0.6);
+  white-space: nowrap;
+}
+
+.dmb-arrow-svg {
+  width: 36px;
+  height: 48px;
+}
+
+/* E=mc² glowing badge */
+.dmb-emc2 {
+  background: linear-gradient(135deg, #1a1a1a 0%, #0f172a 100%);
+  border: 2px solid #C5A059;
+  border-radius: 8px;
+  padding: 0.4rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  box-shadow: 0 0 16px rgba(197,160,89,0.35), 3px 3px 0px 0px #7c5a1e;
+}
+
+.dmb-emc2-eq {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-style: italic;
+  color: #fde68a;
+  text-shadow: 0 0 10px rgba(253,230,138,0.5);
+}
+
+.dmb-emc2-val {
+  font-family: 'Courier New', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #f97316;
+  letter-spacing: 0.03em;
+}
+
+/* ── Info trigger button ──────────────────────────────────────────── */
+.dmb-info-btn {
+  margin-top: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  background: rgba(197, 160, 89, 0.12);
+  border: 1px solid rgba(197, 160, 89, 0.45);
+  border-radius: 4px;
+  color: #C5A059;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.dmb-info-btn:hover {
+  background: rgba(197, 160, 89, 0.22);
+  border-color: #C5A059;
+}
+
+/* ── Modal backdrop ───────────────────────────────────────────────── */
+.dmb-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 1.5rem;
+}
+
+/* ── Modal box ────────────────────────────────────────────────────── */
+.dmb-modal {
+  background: #0f172a;
+  border: 2px solid #C5A059;
+  border-radius: 14px;
+  box-shadow: 6px 6px 0px 0px #7c5a1e, 0 0 40px rgba(197,160,89,0.2);
+  width: 100%;
+  max-width: 580px;
+  max-height: 85vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #C5A059 rgba(255,255,255,0.05);
+}
+
+.dmb-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.4rem 0.9rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  position: sticky;
+  top: 0;
+  background: #0f172a;
+  z-index: 1;
+}
+
+.dmb-modal-title {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fde68a;
+  margin: 0;
+}
+
+.dmb-modal-close {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  color: #94a3b8;
+  font-size: 1.2rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.dmb-modal-close:hover {
+  background: rgba(255,255,255,0.14);
+  color: #ffffff;
+}
+
+/* ── Modal body / steps ───────────────────────────────────────────── */
+.dmb-modal-body {
+  padding: 1.25rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.dmb-step {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dmb-step-conclusion {
+  border-color: rgba(197,160,89,0.3);
+  background: rgba(197,160,89,0.06);
+}
+
+.dmb-step-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #C5A059;
+  text-transform: uppercase;
+}
+
+/* Monospaced equation row */
+.dmb-step-eq {
+  font-family: 'Courier New', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  padding: 0.45rem 0.6rem;
+  background: rgba(0,0,0,0.3);
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+.dmb-op {
+  color: #64748b;
+}
+
+/* Accent colours for key numbers */
+.dmb-num-purple { color: #c4b5fd; text-shadow: 0 0 8px rgba(196,181,253,0.4); }
+.dmb-num-blue   { color: #7dd3fc; text-shadow: 0 0 8px rgba(125,211,252,0.4); }
+.dmb-num-red    { color: #f87171; text-shadow: 0 0 10px rgba(248,113,113,0.5); }
+.dmb-num-gold   { color: #fde68a; text-shadow: 0 0 10px rgba(253,230,138,0.5); }
+.dmb-num-orange { color: #fb923c; text-shadow: 0 0 10px rgba(251,146,60,0.5); }
+
+.dmb-step-text {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.dmb-step-text em {
+  color: #cbd5e1;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.dmb-step-text strong {
+  color: #e2e8f0;
+}

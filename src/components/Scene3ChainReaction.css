@@ -1,0 +1,352 @@
+/* ══════════════════════════════════════════════════════════════
+   Scene 3 – Chain Reactions & Control
+   3-column layout:  Left 25% | Centre 50% | Right 25%
+   Fills .nm-scene which is  position:absolute; inset:0; overflow:hidden
+   ══════════════════════════════════════════════════════════════ */
+
+/* ─── Root wrapper ─────────────────────────────────────────────── */
+.s3-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ─── Reactor status chip (in right dashboard) ────────────────── */
+.s3-status-chip {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 0.4rem 0.6rem;
+  border-radius: 7px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  border: 2px solid #1a1a1a;
+  box-shadow: 2px 2px 0 #0f172a;
+}
+.s3-chip-idle     { background: #f1f5f9; color: #64748b; }
+.s3-chip-stable   { background: #dcfce7; color: #166534; }
+.s3-chip-meltdown {
+  background: #dc2626;
+  color: #fff;
+  animation: s3-flash 0.5s infinite;
+}
+
+@keyframes s3-flash {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* ─── 3-column main area ───────────────────────────────────────── */
+.s3-main {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 25% 50% 25%;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  overflow: hidden;
+}
+
+/* ─── Left column — text panel ─────────────────────────────────── */
+.s3-left {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.s3-left .scene3-text-panel {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ─── Centre column — reactor canvas ───────────────────────────── */
+.s3-center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.s3-center .chain-reaction-container {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+/* Meltdown pulsing glow */
+.s3-center.meltdown {
+  animation: s3-pulse-red 0.8s infinite;
+}
+@keyframes s3-pulse-red {
+  0%, 100% { box-shadow: inset 0 0 0 0 transparent; }
+  50%       { box-shadow: inset 0 0 60px 20px rgba(220,38,38,0.35); }
+}
+
+/* Meltdown text overlay */
+.s3-meltdown-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  pointer-events: none;
+  z-index: 10;
+}
+.s3-meltdown-line1 {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #fef2f2;
+  text-shadow: 0 0 12px #dc2626, 0 2px 4px rgba(0,0,0,0.8);
+  letter-spacing: 0.08em;
+  animation: s3-flash 0.5s infinite;
+}
+.s3-meltdown-line2 {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #fca5a5;
+  text-shadow: 0 0 8px #dc2626, 0 2px 4px rgba(0,0,0,0.8);
+  letter-spacing: 0.06em;
+}
+
+/* ─── Right column — dashboard ──────────────────────────────────── */
+.s3-right {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100,116,139,0.25) transparent;
+}
+
+/* ══════════════════════
+   Temperature Gauge
+   ══════════════════════ */
+.tg-wrap {
+  position: relative;
+  background: #fff;
+  border: 2px solid #1a1a1a;
+  box-shadow: 3px 3px 0 #0f172a;
+  border-radius: 8px;
+  padding: 0.75rem 0.8rem 0.6rem;
+  flex-shrink: 0;
+}
+
+.tg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.45rem;
+}
+
+.tg-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #1a1a1a;
+}
+
+.tg-pct {
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s;
+}
+
+/* Segmented track */
+.tg-track {
+  position: relative;
+  height: 18px;
+  border-radius: 9px;
+  border: 1.5px solid #1a1a1a;
+  overflow: hidden;
+  background: linear-gradient(
+    to right,
+    rgba(59,130,246,0.18)  0%  33%,
+    rgba(16,185,129,0.18) 33%  66%,
+    rgba(220, 38, 38,0.18) 66% 100%
+  );
+  margin-bottom: 0.25rem;
+}
+
+.tg-fill {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  opacity: 0.8;
+  pointer-events: none;
+  border-radius: 9px;
+}
+
+.tg-divider {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 2px;
+  background: rgba(26,26,26,0.2);
+  pointer-events: none;
+}
+
+/* Zone label row */
+.tg-zone-row {
+  position: relative;
+  height: 1.9rem;
+  margin-bottom: 0.45rem;
+}
+
+.tg-zone-lbl {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 0.56rem;
+  line-height: 1.2;
+  color: #64748b;
+  text-align: center;
+  white-space: nowrap;
+  top: 0;
+}
+
+.tg-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-align: center;
+  padding: 0.18rem 0.4rem;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.3rem;
+}
+
+.tg-badge-subcritical   { background: #eff6ff; color: #1d4ed8; }
+.tg-badge-critical      { background: #fffbeb; color: #b45309; }
+.tg-badge-supercritical { background: #fef2f2; color: #dc2626; animation: s3-flash 0.6s infinite; }
+
+.tg-hint {
+  font-size: 0.64rem;
+  color: #64748b;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* ══════════════════════
+   Control Rods Box
+   ══════════════════════ */
+.s3-ctrl-box {
+  background: #fff;
+  border: 2px solid #1a1a1a;
+  box-shadow: 3px 3px 0 #0f172a;
+  border-radius: 8px;
+  padding: 0.75rem 0.8rem;
+  flex-shrink: 0;
+}
+
+.s3-ctrl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.s3-ctrl-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #1a1a1a;
+}
+
+.s3-rod-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.12rem 0.42rem;
+  border-radius: 4px;
+}
+
+.s3-rod-up   { background: #dbeafe; color: #1d4ed8; }
+.s3-rod-mid  { background: #fef3c7; color: #b45309; }
+.s3-rod-down { background: #dcfce7; color: #166534; }
+
+.s3-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: #e2e8f0;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  margin-bottom: 0.3rem;
+}
+
+.s3-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #475569;
+  border: 2px solid #1a1a1a;
+  box-shadow: 1px 1px 0 #0f172a;
+  cursor: pointer;
+}
+
+.s3-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #475569;
+  border: 2px solid #1a1a1a;
+  cursor: pointer;
+}
+
+.s3-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.62rem;
+  color: #94a3b8;
+  margin-bottom: 0.4rem;
+}
+
+.s3-rod-hint {
+  font-size: 0.63rem;
+  color: #64748b;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ══════════════════════
+   Action Button
+   ══════════════════════ */
+.s3-action { flex-shrink: 0; }
+
+.s3-btn-start,
+.s3-btn-reset {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 2px solid #1a1a1a;
+  border-radius: 7px;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #0f172a;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.s3-btn-start { background: #10b981; }
+.s3-btn-start:hover {
+  background: #059669;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #0f172a;
+}
+
+.s3-btn-reset { background: #1a1a1a; }
+.s3-btn-reset:hover {
+  background: #334155;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #0f172a;
+}

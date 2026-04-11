@@ -1,0 +1,223 @@
+.fr-root {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem 1.5rem 2.5rem;
+  background: var(--c-bg, #F9F8F4);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ── HEADER ── */
+.fr-head {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 580px;
+}
+
+.fr-trophy { font-size: 2.8rem; line-height: 1; }
+
+.fr-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-family: 'Lora', Georgia, serif;
+  color: #1a1a1a;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.fr-sub {
+  font-size: 0.92rem;
+  color: #64748b;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.fr-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 240px;
+  margin-top: 0.25rem;
+}
+.fr-progress-track {
+  width: 100%;
+  height: 7px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.fr-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #C5A059, #10b981);
+  border-radius: 4px;
+}
+.fr-progress-lbl {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── CYCLE CARDS ── */
+.fr-cycle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.fr-card {
+  background: #fff;
+  border: 2px solid #1a1a1a;
+  border-radius: 12px;
+  padding: 1.1rem 0.9rem;
+  width: 148px;
+  min-height: 175px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  cursor: default;
+  box-shadow: 3px 3px 0px 0px #0f172a;
+}
+
+.fr-card-accent {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--sc);
+}
+
+.fr-done {
+  background: color-mix(in srgb, var(--sc) 6%, #fff);
+  border-color: color-mix(in srgb, var(--sc) 25%, #e2e8f0);
+}
+
+.fr-card-icon {
+  font-size: 1.85rem;
+  line-height: 1;
+  margin-top: 0.15rem;
+}
+
+.fr-card-content { text-align: center; }
+
+.fr-card-sub {
+  display: block;
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--sc);
+  margin-bottom: 0.2rem;
+}
+
+.fr-card-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: 'Lora', Georgia, serif;
+  color: #1a1a1a;
+  margin: 0 0 0.3rem;
+}
+
+.fr-card-desc {
+  font-size: 0.7rem;
+  color: #64748b;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.fr-check {
+  position: absolute;
+  top: 8px; right: 9px;
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  background: #10b981;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* connector arrow */
+.fr-arrow {
+  display: flex;
+  align-items: center;
+  padding: 0 2px;
+  flex-shrink: 0;
+  margin-bottom: 0;
+  align-self: center;
+}
+
+/* ── INSIGHT ── */
+.fr-insight {
+  background: #fff;
+  border: 2px solid #1a1a1a;
+  border-left: 4px solid #C5A059;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 3px 3px 0px 0px #0f172a;
+}
+.fr-insight-icon { font-size: 1.1rem; flex-shrink: 0; padding-top: 0.1rem; }
+.fr-insight p {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #475569;
+  line-height: 1.7;
+}
+.fr-insight strong { color: #1a1a1a; font-weight: 700; }
+
+/* ── ACTIONS ── */
+.fr-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.fr-btn-restart {
+  background: #1a1a1a;
+  color: #fff;
+  border: 2px solid #1a1a1a;
+  border-radius: 10px;
+  padding: 0.65rem 1.75rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+  box-shadow: 4px 4px 0px 0px #0f172a;
+  transition: all 0.2s;
+}
+.fr-btn-restart:hover {
+  background: #333;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px #0f172a;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .fr-cycle { gap: 0.5rem; }
+  .fr-arrow { display: none; }
+  .fr-card  { width: 130px; }
+}

@@ -1,0 +1,234 @@
+/* ═══ LANDING PAGE ════════════════════════════════════════════ */
+
+.lp-root {
+  width: 100%;
+  height: 100%;
+  background: #F9F8F4;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem 3rem;
+  gap: 2.5rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.3) transparent;
+}
+
+/* ── BRAND BAR ── */
+.lp-brand {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  font-family: 'Lora', Georgia, serif;
+}
+
+.lp-brand-orb {
+  font-size: 1.1rem;
+  color: #C5A059;
+  filter: drop-shadow(0 0 5px rgba(197, 160, 89, 0.4));
+}
+
+/* ── HERO ── */
+.lp-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 720px;
+  gap: 1.25rem;
+}
+
+.lp-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.lp-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #C5A059;
+  background: rgba(197, 160, 89, 0.1);
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+}
+
+.lp-title {
+  font-family: 'Lora', Georgia, serif;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.lp-subtitle {
+  font-size: 1rem;
+  color: #475569;
+  line-height: 1.75;
+  margin: 0;
+  max-width: 580px;
+}
+
+/* ── SECTION TITLE ── */
+.lp-section-title {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.01em;
+}
+
+/* ── LEARNING OUTCOMES ── */
+.lp-outcomes-section {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+}
+
+.lp-outcomes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.lp-outcome {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: #ffffff;
+  border: 2px solid #1a1a1a;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #334155;
+  line-height: 1.55;
+  box-shadow: 2px 2px 0px 0px #0f172a;
+}
+
+.lp-outcome-check {
+  color: #10b981;
+  font-weight: 800;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+/* ── ROADMAP ── */
+.lp-roadmap-section {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+}
+
+.lp-roadmap {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.lp-topic-card {
+  background: #ffffff;
+  border: 2px solid #1a1a1a;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  box-shadow: 3px 3px 0px 0px #0f172a;
+  position: relative;
+}
+
+.lp-topic-step {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #C5A059;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lp-topic-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.lp-topic-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.lp-topic-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: 'Lora', Georgia, serif;
+  color: #1a1a1a;
+  line-height: 1.2;
+}
+
+.lp-topic-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* ── CTA ── */
+.lp-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lp-start-btn {
+  background: #1a1a1a;
+  color: #ffffff;
+  border: 2px solid #1a1a1a;
+  border-radius: 10px;
+  padding: 0.85rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Inter', system-ui, sans-serif;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px 0px #0f172a;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  letter-spacing: 0.01em;
+}
+
+.lp-start-btn:hover {
+  background: #333;
+}
+
+.lp-cta-note {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .lp-outcomes  { grid-template-columns: 1fr; }
+  .lp-roadmap   { grid-template-columns: 1fr 1fr; }
+  .lp-title     { font-size: 1.75rem; }
+}
+
+@media (max-width: 400px) {
+  .lp-roadmap { grid-template-columns: 1fr; }
+}
