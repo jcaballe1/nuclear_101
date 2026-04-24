@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import RealWorldOverlay from './RealWorldOverlay';
-import './TextPanel.css';
+import RealWorldOverlay from './RealWorldOverlay';import Term from './Term';import './TextPanel.css';
 
 const ENRICHMENT_LEVELS = [
   { label: 'Natural',       pct: '0.7%',  visual: 5,  color: '#b45309', note: 'as mined from ore'      },

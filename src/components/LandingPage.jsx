@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import Term from './Term';
 import './LandingPage.css';
 
 const SineWaveIcon = () => (
@@ -43,13 +44,13 @@ const HexagonIcon = () => (
 const BIG_PICTURE = [
   {
     Icon: SineWaveIcon,
-    title: 'Continuous Baseload Power',
+    title: <>Continuous <Term term="baseload" display="Baseload" /> Power</>,
     text: 'Nuclear delivers consistent, uninterrupted electricity 24/7, regardless of weather.',
   },
   {
     Icon: DropletIcon,
     title: 'Zero-Carbon Emissions',
-    text: 'Nuclear fission produces zero CO\u2082. The visible steam from cooling towers is pure water vapor.',
+    text: <>Nuclear <Term term="fission" /> produces zero CO{'\u2082'}. The visible steam from cooling towers is pure water vapor.</>,
   },
   {
     Icon: HexagonIcon,
@@ -59,8 +60,8 @@ const BIG_PICTURE = [
 ];
 
 const FISSION_FUSION_ROWS = [
-  { process: 'Fission', summary: 'Splits heavy atoms such as uranium-235', energy: '~80,000,000', carbon: '~12' },
-  { process: 'Fusion', summary: 'Joins light atoms such as hydrogen isotopes', energy: '~120,000,000', carbon: '~4-15 projected' },
+  { process: 'Fission', summary: <>Splits heavy atoms such as <Term term="Uranium-235" display="uranium-235" /></>, energy: '~80,000,000', carbon: '~12' },
+  { process: 'Fusion', summary: <>Joins light atoms such as hydrogen <Term term="isotope" display="isotopes" /></>, energy: '~120,000,000', carbon: '~4-15 projected' },
   { process: 'Coal', summary: 'Burns carbon-rich rock', energy: '~24', carbon: '~820' },
   { process: 'Natural Gas', summary: 'Burns methane', energy: '~55', carbon: '~490' },
 ];
