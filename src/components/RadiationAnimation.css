@@ -187,10 +187,9 @@
 .shield-drop-zone {
   position: absolute;
   left: 50%;
-  top: 15%;
-  bottom: 15%;
-  width: 100px;
-  transform: translateX(-50%);
+  top: 10%;
+  bottom: 10%;
+  width: 30%; /* 50% to 80% essentially */
   border: 2px dashed rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   display: flex;
@@ -200,6 +199,28 @@
   transition: all 0.3s ease;
   z-index: 10;
 }
+
+.heatmap-layer {
+  position: absolute;
+  left: calc(4% + 70px);
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 9;
+  pointer-events: none;
+}
+
+.heatmap-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  opacity: 0.7;
+}
+
+.hm-alpha { background: #ef4444; box-shadow: 0 0 4px #ef4444; }
+.hm-beta { background: #eab308; box-shadow: 0 0 4px #eab308; }
+.hm-gamma { background: #a855f7; box-shadow: 0 0 4px #a855f7; }
 
 .drop-zone-placeholder {
   color: rgba(255, 255, 255, 0.5);

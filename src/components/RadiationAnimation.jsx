@@ -9,69 +9,76 @@ const RADIATIONS = [
 ];
 
 const SHIELDS = [
-  { id: 'paper', name: 'Sheet of Paper', color: '#f1f5f9', width: 20 },
-  { id: 'plastic', name: 'Acrylic / Plastic', color: '#bae6fd', width: 40 },
-  { id: 'lead', name: 'Thick Lead / Concrete', color: '#64748b', width: 80 }
+  { id: 'paper', name: 'Sheet of Paper', color: '#f1f5f9' },
+  { id: 'plastic', name: 'Acrylic / Plastic', color: '#bae6fd' },
+  { id: 'lead', name: 'Thick Lead / Concrete', color: '#64748b' }
 ];
 
-const ParticleEmitter = ({ type, typeInfo, activeShield }) => {
+const ParticleEmitter = ({ type, typeInfo, activeShield, onHit }) => {
   const [particles, setParticles] = useState([]);
-  const [hits, setHits] = useState([]);
   const particleIdRef = useRef(0);
 
-  // Determine if it passes
-  const getsBlockedBy = (shield) => {
-    if (!shield) return false;
-    if (type === 'alpha' && ['paper', 'plastic', 'lead'].includes(shield)) return true;
-    if (type === 'beta' && ['plastic', 'lead'].includes(shield)) return true;
-    if (type === 'gamma' && shield === 'lead') return true;
-    return false;
-  };
+  // Math helper for random sampling
+  const sampleDepth = (shield) => {
+    if (!shield) return 100; // Goes all the way
+    
+    // Shield spans from 50% to 80% (30% width)
+    const start = 50;
+    const width = 30;
+    
+    // Random exponential
+    const expo = (mean) => -mean * Math.log(1 - Math.random());
+    // Random gaussian (Box-Muller)
+    const gaussian = (mean, stdDev) => {
+      const u = 1 - Math.random();
+      const v = Math.random();
+      const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+      return z * stdDev + mean;
+    };
 
-  const isBlocked = getsBlockedBy(activeShield);
-  const stopPoint = isBlocked ? 50 : 100; // Stop at 50% if blocked, otherwise go to 100%
+    if (type === 'alpha') {
+      if (shield === 'paper') return start + expo(0.05 * width);
+      if (shield === 'plastic' || shield === 'lead') return start + expo(0.02 * width);
+    }
+    if (type === 'beta') {
+      if (shield === 'paper') return 100;
+      if (shield === 'plastic') {
+        // Gaussian centered mid-plastic
+        let val = gaussian(start + 0.5 * width, 0.15 * width);
+        return Math.max(start, Math.min(start + width - 1, val));
+      }
+      if (shield === 'lead') return start + expo(0.05 * width);
+    }
+    if (type === 'gamma') {
+      if (shield === 'paper' || shield === 'plastic') return 100;
+      if (shield === 'lead') {
+        const penetration = expo(0.4 * width);
+        return penetration > width ? 100 : start + penetration;
+      }
+    }
+    return 100;
+  };
 
   // Generate particles periodically
   useEffect(() => {
     const interval = setInterval(() => {
+      const targetDepth = sampleDepth(activeShield);
       const newParticle = { 
         id: particleIdRef.current++,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        targetDepth,
+        blocked: targetDepth < 100
       };
       setParticles(prev => [...prev, newParticle]);
-    }, type === 'alpha' ? 1200 : type === 'beta' ? 800 : 600);
+    }, type === 'alpha' ? 800 : type === 'beta' ? 500 : 400);
 
     return () => clearInterval(interval);
-  }, [type]);
-
-  // Generate hit effects when blocked
-  useEffect(() => {
-    if (!isBlocked) {
-      setHits([]); // Clear hits when not blocked
-      return;
-    }
-    const interval = setInterval(() => {
-      const newHit = { id: Date.now() + Math.random() };
-      setHits(prev => [...prev.slice(-2), newHit]);
-    }, 800 + Math.random() * 600);
-
-    return () => clearInterval(interval);
-  }, [isBlocked]);
-
-  // Clean up old particles
-  useEffect(() => {
-    const cleanup = setInterval(() => {
-      const now = Date.now();
-      setParticles(prev => prev.filter(p => now - p.timestamp < 5000));
-    }, 1000);
-
-    return () => clearInterval(cleanup);
-  }, []);
+  }, [type, activeShield]);
 
   const getParticleDuration = () => {
-    if (type === 'alpha') return 4;
-    if (type === 'beta') return 2;
-    return 1.2;
+    if (type === 'alpha') return 3;
+    if (type === 'beta') return 1.5;
+    return 1;
   };
 
   return (
@@ -84,28 +91,19 @@ const ParticleEmitter = ({ type, typeInfo, activeShield }) => {
               key={particle.id}
               className={`particle particle-${type}`}
               initial={{ left: '0%' }}
-              animate={{ left: `${stopPoint}%` }}
+              animate={{ left: `${particle.targetDepth}%` }}
               exit={{ opacity: 0 }}
               transition={{ 
-                duration: getParticleDuration() * (stopPoint / 100),
+                duration: getParticleDuration() * (particle.targetDepth / 100),
                 ease: "linear"
               }}
               onAnimationComplete={() => {
+                if (particle.blocked && onHit) {
+                  // Register a hit to the global heatmap
+                  onHit(type, particle.targetDepth, typeInfo.top);
+                }
                 setParticles(prev => prev.filter(p => p.id !== particle.id));
               }}
-            />
-          ))}
-        </AnimatePresence>
-        
-        <AnimatePresence>
-          {hits.map((hit) => (
-            <motion.div
-              key={hit.id}
-              className={`hit-effect hit-${type}`}
-              initial={{ opacity: 1, scale: 0.3 }}
-              animate={{ opacity: 0, scale: 2.5 }}
-              exit={{ opacity: 0, scale: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
             />
           ))}
         </AnimatePresence>
@@ -116,14 +114,30 @@ const ParticleEmitter = ({ type, typeInfo, activeShield }) => {
 
 const RadiationAnimation = ({ onComplete }) => {
   const [activeShield, setActiveShield] = useState(null);
-  const [hoveredLead, setHoveredLead] = useState(false);
+  const [heatmapDots, setHeatmapDots] = useState([]);
   const dropZoneRef = useRef(null);
+
+  // Clear heatmap when shield changes
+  useEffect(() => {
+    setHeatmapDots([]);
+  }, [activeShield]);
+
+  const handleHit = (type, x, topStr) => {
+    // Add jitter to y position based on track top
+    const baseTop = parseFloat(topStr);
+    const yJitter = (Math.random() - 0.5) * 15; // +/- 7.5% jitter
+    setHeatmapDots(prev => [...prev.slice(-300), { // Keep max 300 dots
+      id: Math.random(),
+      type,
+      x,
+      y: baseTop + yJitter
+    }]);
+  };
 
   const handleDragEnd = (event, info, shieldId) => {
     if (!dropZoneRef.current) return;
     const dropZoneRect = dropZoneRef.current.getBoundingClientRect();
     
-    // Get drag position from info.point
     if (!info?.point) return;
     
     const clientX = info.point.x;
@@ -143,6 +157,22 @@ const RadiationAnimation = ({ onComplete }) => {
   return (
     <div className="radiation-animation-container">
       <div className="main-simulation-area">
+        {/* Heatmap Layer */}
+        {activeShield && (
+          <div className="heatmap-layer">
+            {heatmapDots.map(dot => (
+              <div 
+                key={dot.id} 
+                className={`heatmap-dot hm-${dot.type}`}
+                style={{ 
+                  left: `${dot.x}%`, 
+                  top: `calc(${dot.y}% - 10px)` // align roughly with track
+                }} 
+              />
+            ))}
+          </div>
+        )}
+
         {/* Source */}
         <div className="source-emitter">
           <div className="source-core"></div>
@@ -158,6 +188,7 @@ const RadiationAnimation = ({ onComplete }) => {
               type={rad.id} 
               typeInfo={rad} 
               activeShield={activeShield} 
+              onHit={handleHit}
             />
           ))}
         </div>
@@ -165,40 +196,8 @@ const RadiationAnimation = ({ onComplete }) => {
         {/* Drop Zone / Active Shield */}
         <div className="shield-drop-zone" ref={dropZoneRef}>
           {activeShield ? (
-            <div 
-              className={`active-shield shield-${activeShield}`}
-              onMouseEnter={() => activeShield === 'lead' && setHoveredLead(true)}
-              onMouseLeave={() => setHoveredLead(false)}
-            >
+            <div className={`active-shield shield-${activeShield}`}>
               <div className="shield-glass">{SHIELDS.find(s => s.id === activeShield)?.name || 'Shield'}</div>
-              
-              {/* Magnifying Glass Effect for Lead */}
-              <AnimatePresence>
-                {activeShield === 'lead' && hoveredLead && (
-                  <motion.div 
-                    className="magnifying-glass"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div className="mag-content">
-                      <p>Microscopic View</p>
-                      <div className="mag-atoms">
-                        {[1,2,3,4,5,6,7,8,9].map(i => (
-                           <motion.div 
-                             key={i} 
-                             className="mag-atom"
-                             animate={{ x: [-1, 1, -1], y: [1, -1, 1] }}
-                             transition={{ repeat: Infinity, duration: 0.1 + Math.random()*0.1 }}
-                           />
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
               <button className="remove-shield-btn" onClick={(e) => { e.stopPropagation(); setActiveShield(null); }}>×</button>
             </div>
           ) : (
@@ -217,7 +216,7 @@ const RadiationAnimation = ({ onComplete }) => {
               drag
               dragSnapToOrigin
               onDragEnd={(e, info) => handleDragEnd(e, info, shield.id)}
-              onClick={() => setActiveShield(shield.id)}
+              onClick={() => { setActiveShield(shield.id); if (onComplete) onComplete(); }}
               whileDrag={{ scale: 1.1, zIndex: 10, cursor: 'grabbing' }}
               whileHover={{ scale: 1.05 }}
             >
