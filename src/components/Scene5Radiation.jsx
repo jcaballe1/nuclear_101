@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import RadiationAnimation from './RadiationAnimation';
 import Scene5TextPanel from './Scene5TextPanel';
+import HalfLifeDecay from './HalfLifeDecay';
 import './Scene5Radiation.css';
 
 const Scene5Radiation = ({ onComplete }) => {
@@ -12,6 +13,7 @@ const Scene5Radiation = ({ onComplete }) => {
 
         <div className="visualization-controls-section">
           <RadiationAnimation onComplete={onComplete} />
+          <HalfLifeDecay />
         </div>
       </div>
     </div>

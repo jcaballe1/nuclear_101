@@ -152,9 +152,10 @@
 
 .comparison-box {
   background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(245, 158, 11, 0.28);
   border-left: 3px solid #f59e0b;
-  border-radius: 6px;
-  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  padding: 0.95rem 1rem;
   font-size: 0.88rem;
   color: #334155;
 }
@@ -166,18 +167,118 @@
   font-size: 0.92rem;
 }
 
-.comparison-box ul {
-  margin: 0.4rem 0 0 1.25rem;
-  padding: 0;
-  list-style: disc;
+.comparison-grid {
+  display: grid;
+  gap: 0.45rem;
 }
 
-.comparison-box li {
-  margin-bottom: 0.25rem;
-  line-height: 1.5;
+.comparison-grid-head,
+.comparison-grid-row {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1fr;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.comparison-grid-head {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.comparison-grid-row {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.comparison-grid-fuel {
+  color: #1a1a1a;
+  font-weight: 700;
 }
 
 .comparison-box em {
+  display: block;
+  margin-top: 0.65rem;
   color: #d97706;
   font-weight: 600;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+/* ── Reactor-type blurb (PWR / BWR / SMR) ── */
+.s4-type-blurb {
+  margin-top: 0.85rem;
+  background: #F9F8F4;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #fb923c;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.s4-type-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Lora', Georgia, serif;
+  letter-spacing: 0.4px;
+}
+
+.s4-type-text {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: #475569;
+}
+
+/* ── 'Why SMRs matter for Just Transition' callout ── */
+.s4-jt-callout {
+  margin-top: 0.85rem;
+  background: linear-gradient(160deg, rgba(34,211,238,0.10), rgba(251,146,60,0.08));
+  border: 1px solid #22d3ee;
+  border-left: 4px solid #f97316;
+  border-radius: 10px;
+  padding: 0.95rem 1.1rem;
+  overflow: hidden;
+}
+
+.s4-jt-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.s4-jt-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  color: #f97316;
+}
+
+.s4-jt-title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  font-family: 'Lora', Georgia, serif;
+  color: #0e7490;
+  letter-spacing: 0.3px;
+}
+
+.s4-jt-text {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #1a1a1a;
+}
+
+.s4-jt-text strong {
+  color: #c2410c;
 }

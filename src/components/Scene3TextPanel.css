@@ -191,3 +191,48 @@
 .safety-tip strong {
   color: #7f1d1d;
 }
+
+/* ── Moderator / Coolant / Control Rod cards ── */
+.s3-reactor-controls {
+  background: #F9F8F4;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.s3-rctrl-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.6rem;
+}
+
+.s3-rctrl-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  border-left: 3px solid;
+}
+
+.s3-rctrl-icon {
+  flex-shrink: 0;
+  font-size: 1.35rem;
+  line-height: 1;
+  margin-top: 0.1rem;
+}
+
+.s3-rctrl-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  font-family: 'Lora', Georgia, serif;
+}
+
+.s3-rctrl-text {
+  font-size: 0.84rem;
+  color: #475569;
+  line-height: 1.55;
+  margin: 0;
+}

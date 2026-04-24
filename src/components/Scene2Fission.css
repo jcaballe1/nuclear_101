@@ -90,10 +90,17 @@
   flex-shrink: 0;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 900px) {
   .scene2-content {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
     overflow-y: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .scene2-content {
+    padding: 0.75rem;
   }
 }
 

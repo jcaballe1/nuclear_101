@@ -37,7 +37,8 @@ const BalanceScale = () => {
           <div className="dmb-delta-value">Δm = −0.186 u</div>
 
           {/* Arrow */}
-          <svg className="dmb-arrow-svg" viewBox="0 0 60 80" preserveAspectRatio="xMidYMid meet">
+          <svg className="dmb-arrow-svg" viewBox="0 0 60 80" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Energy difference driving fission">
+            <title>Arrow indicating missing mass converts to energy</title>
             <defs>
               <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%"   stopColor="#ef4444" />

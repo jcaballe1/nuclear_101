@@ -9,7 +9,7 @@ const TempGauge = ({ temperature }) => {
   const clamp  = Math.max(0, Math.min(100, temperature));
   const zone   = clamp < 33 ? 'subcritical' : clamp < 66 ? 'critical' : 'supercritical';
   const colour = { subcritical: '#3b82f6', critical: '#10b981', supercritical: '#dc2626' }[zone];
-  const label  = { subcritical: 'SUBCRITICAL', critical: 'CRITICAL', supercritical: 'SUPERCRITICAL' }[zone];
+  const label  = { subcritical: '↓ SUBCRITICAL', critical: '✓ CRITICAL', supercritical: '⚠ SUPERCRITICAL' }[zone];
   const hint   = {
     subcritical:   'Reaction dying out. Rods absorbing neutrons.',
     critical:      'Balanced! Each neutron triggers exactly one more fission.',

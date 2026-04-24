@@ -58,6 +58,34 @@ const Scene5TextPanel = () => {
             </div>
           </div>
         </div>
+
+        {/* Why atoms decay */}
+        <div className="s5-decay-card">
+          <h3 className="s5-decay-title">Why atoms decay</h3>
+          <p className="s5-decay-text">
+            An <strong>unstable nucleus</strong> carries more internal energy than
+            a more tightly-bound configuration would. Sooner or later it sheds that
+            excess by emitting an &alpha;, &beta; or &gamma; particle and rearranging
+            into a more stable nucleus.
+          </p>
+          <p className="s5-decay-text">
+            The crucial point: decay is <strong>spontaneous and probabilistic</strong>.
+            No-one can say <em>which</em> atom will decay next, only that each atom
+            has the same constant probability per unit time. Quantum mechanics
+            forbids any "countdown timer" inside the nucleus.
+          </p>
+          <div className="s5-decay-halflife">
+            <div className="s5-decay-hl-icon">T<sub>½</sub></div>
+            <p className="s5-decay-hl-text">
+              The <strong>half-life</strong> is the time after which, on average,
+              <em> half</em> of any sample has decayed. After two half-lives, a
+              quarter remains; after ten, less than 0.1%. The same simple law
+              governs medical isotopes (hours–days), spent fuel (decades–centuries)
+              and natural uranium (billions of years).
+            </p>
+          </div>
+          <p className="s5-decay-cta">→ Try the simulator on the right.</p>
+        </div>
       </div>
 
       <RealWorldOverlay

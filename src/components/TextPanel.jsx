@@ -3,6 +3,70 @@ import { motion, AnimatePresence } from 'framer-motion';
 import RealWorldOverlay from './RealWorldOverlay';
 import './TextPanel.css';
 
+const ENRICHMENT_LEVELS = [
+  { label: 'Natural',       pct: '0.7%',  visual: 5,  color: '#b45309', note: 'as mined from ore'      },
+  { label: 'Reactor grade', pct: '4%',    visual: 22, color: '#d97706', note: 'used in power plants'   },
+  { label: 'Weapons grade', pct: '90%',   visual: 90, color: '#ef4444', note: 'nuclear warheads'       },
+];
+
+const EnrichmentBar = () => (
+  <div className="enrich-widget">
+    <p className="enrich-title">U-235 Enrichment Levels</p>
+    {ENRICHMENT_LEVELS.map(({ label, pct, visual, color, note }) => (
+      <div key={label} className="enrich-row">
+        <span className="enrich-label">{label}</span>
+        <div className="enrich-track" aria-label={`${label}: ${pct}`}>
+          <div className="enrich-fill" style={{ width: `${visual}%`, background: color }} />
+        </div>
+        <span className="enrich-pct" style={{ color }}>{pct}</span>
+        <span className="enrich-note">{note}</span>
+      </div>
+    ))}
+    <p className="enrich-caption">Bar widths are exaggerated for clarity — weapons grade is ~225× more enriched than reactor grade.</p>
+  </div>
+);
+
+const ExpandIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="5" />
+    <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const FilterIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+  </svg>
+);
+
+const AtomIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none" />
+    <ellipse cx="12" cy="12" rx="10" ry="4" />
+    <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)" />
+    <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)" />
+  </svg>
+);
+
+const LIST_ITEMS = [
+  {
+    Icon: ExpandIcon,
+    title: 'Isotopes: The Over-filled Balloon',
+    text: 'Atoms of the same element can have different weights, called isotopes. Most uranium is U-238, which acts like a thick, stable balloon. It absorbs impacts easily. But U-235 is like an over-filled balloon stretched to its absolute limit. One tiny tap from a neutron makes it violently pop (fission).',
+  },
+  {
+    Icon: FilterIcon,
+    title: 'Enrichment: Filtering the Sand',
+    text: 'Natural uranium from the ground is 99.3% stable U-238 (\u2018sand\u2019) and only 0.7% unstable U-235 (\u2018gold\u2019). To build a power plant, we must filter out some of the sand to increase the amount of U-235 to about 4%. This filtering process is called Enrichment.',
+  },
+  {
+    Icon: AtomIcon,
+    title: 'The Physics of the Split',
+    text: 'Inside the U-235 nucleus, an incredible tension exists between the Strong Nuclear Force (the glue holding it together) and Electrostatic Repulsion (protons pushing apart). Adding just one neutron destroys this delicate balance.',
+  },
+];
+
 const TextPanel = ({ isotopeType, showFission, onFissionDismiss, onFissionNext }) => {
   const [showOverlay, setShowOverlay] = useState(false);
   const panelRef = useRef(null);
@@ -11,47 +75,6 @@ const TextPanel = ({ isotopeType, showFission, onFissionDismiss, onFissionNext }
     setShowOverlay(true);
     if (panelRef.current) panelRef.current.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  const content = {
-    stable: {
-      title: "Stable Isotope: Carbon-12",
-      description: "Carbon-12 (⁶C¹²) contains 6 protons and 6 neutrons, creating a perfectly balanced nucleus.",
-      sections: [
-        {
-          heading: "The Strong Nuclear Force",
-          text: "The strongest force in nature acts at extremely short distances (10⁻¹⁵ m), binding protons and neutrons together. This attractive force overcomes the electrostatic repulsion between positively charged protons."
-        },
-        {
-          heading: "Electrostatic Repulsion",
-          text: "Protons, all positively charged, naturally repel each other according to Coulomb's law. In stable nuclei, the strong nuclear force dominates, keeping the nucleus intact."
-        },
-        {
-          heading: "Stability",
-          text: "The balance between attractive (strong force) and repulsive (electromagnetic) forces creates a stable configuration. Carbon-12 can exist indefinitely without spontaneous decay."
-        }
-      ]
-    },
-    unstable: {
-      title: "Unstable Isotope: Uranium-235",
-      description: "Uranium-235 (⁹²U²³⁵) contains 92 protons and 143 neutrons. This large nucleus is on the edge of instability.",
-      sections: [
-        {
-          heading: "Increased Repulsion",
-          text: "With 92 protons packed together, the electrostatic repulsion grows significantly stronger. The strong nuclear force, limited by distance, struggles to hold the entire nucleus together."
-        },
-        {
-          heading: "The Neutron's Role",
-          text: "Neutrons add mass and provide additional strong force without contributing to electrostatic repulsion. However, too many neutrons can also destabilize the nucleus."
-        },
-        {
-          heading: "Critical Balance",
-          text: "U-235 exists in a delicate equilibrium. The addition of just one more neutron can tip the balance, triggering nuclear fission—the splitting of the nucleus into smaller fragments."
-        }
-      ]
-    }
-  };
-
-  const currentContent = content[isotopeType];
 
   return (
     <motion.div
@@ -62,36 +85,43 @@ const TextPanel = ({ isotopeType, showFission, onFissionDismiss, onFissionNext }
       transition={{ duration: 0.6 }}
     >
       <div className="text-panel-content">
-        <button className="rwv-toggle-btn" onClick={handleOpenOverlay}>
-          Real World View
-        </button>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={isotopeType}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4 }}
-          >
-            <h2 className="isotope-title">{currentContent.title}</h2>
-            <p className="isotope-description">{currentContent.description}</p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <h2 className="isotope-title">The Fuel &amp; The Nucleus</h2>
 
-            <div className="sections">
-              {currentContent.sections.map((section, index) => (
-                <motion.div
-                  key={index}
-                  className="section"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 + 0.2 }}
-                >
-                  <h3 className="section-heading">{section.heading}</h3>
-                  <p className="section-text">{section.text}</p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </AnimatePresence>
+          <button className="rwv-toggle-btn" onClick={handleOpenOverlay}>
+            Real World View
+          </button>
+
+          <p className="isotope-description">
+            Why do we use Uranium? Because it is the only heavy element found in nature that is naturally ready to split and sustain a chain reaction. But not all Uranium is exactly the same.
+          </p>
+
+          <div className="sections">
+            {LIST_ITEMS.map(({ Icon, title, text }, index) => (
+              <motion.div
+                key={index}
+                className="section tp-list-item"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 + 0.2 }}
+              >
+                <div className="tp-list-icon">
+                  <Icon />
+                </div>
+                <div className="tp-list-body">
+                  <h3 className="section-heading tp-list-heading">{title}</h3>
+                  <p className="section-text">{text}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        <EnrichmentBar />
 
         <AnimatePresence>
           {showFission && (

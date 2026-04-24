@@ -3,8 +3,83 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Particle from './Particle';
 import './NucleusVisualization.css';
 
+// ── MiniFissionBurst ──────────────────────────────────────────────────────
+// Self-contained 1.4 s fission burst rendered as SVG children.
+// Manages its own mounting lifetime so the animation always plays to
+// completion regardless of the parent modal's open/closed state.
+// Mount a new instance via a changing `key` to replay the animation.
+const MiniFissionBurst = ({ particles }) => {
+  const [alive, setAlive] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setAlive(false), 1400);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (!alive) return null;
+
+  const half = Math.floor(particles.length / 2);
+
+  return (
+    <>
+      {/* Expanding shockwave ring */}
+      <motion.circle
+        cx="0" cy="0"
+        fill="none" stroke="#fbbf24" strokeWidth="6"
+        initial={{ r: 0, opacity: 1 }}
+        animate={{ r: 260, opacity: 0 }}
+        transition={{ duration: 1.1, ease: 'easeOut' }}
+      />
+      {/* Inner orange glow ring */}
+      <motion.circle
+        cx="0" cy="0"
+        fill="none" stroke="#f97316" strokeWidth="12"
+        initial={{ r: 0, opacity: 0.85 }}
+        animate={{ r: 140, opacity: 0 }}
+        transition={{ duration: 0.75, ease: 'easeOut' }}
+      />
+      {/* Fragment 1 — upper-left */}
+      <motion.g
+        initial={{ x: 0, y: 0, opacity: 1 }}
+        animate={{ x: -170, y: -130, opacity: 0 }}
+        transition={{ duration: 1.3, ease: 'easeOut' }}
+      >
+        {particles.slice(0, half).map(p => (
+          <circle
+            key={`mf1-${p.id}`}
+            cx={p.x * 0.5} cy={p.y * 0.5} r="8"
+            fill={p.type === 'proton' ? '#ef4444' : '#fbbf24'}
+            filter="url(#glow)"
+          />
+        ))}
+      </motion.g>
+      {/* Fragment 2 — lower-right */}
+      <motion.g
+        initial={{ x: 0, y: 0, opacity: 1 }}
+        animate={{ x: 170, y: 130, opacity: 0 }}
+        transition={{ duration: 1.3, ease: 'easeOut' }}
+      >
+        {particles.slice(half).map(p => (
+          <circle
+            key={`mf2-${p.id}`}
+            cx={p.x * 0.5} cy={p.y * 0.5} r="8"
+            fill={p.type === 'proton' ? '#ef4444' : '#fbbf24'}
+            filter="url(#glow)"
+          />
+        ))}
+      </motion.g>
+    </>
+  );
+};
+
 const NucleusVisualization = ({ isotopeType, setIsotopeType, onAddNeutron, showFission }) => {
   const [incomingNeutron, setIncomingNeutron] = useState(false);
+  // Increments each time showFission transitions to true so MiniFissionBurst
+  // gets a new key and replays from scratch on every Add Neutron click.
+  const [burstId, setBurstId] = useState(0);
+  useEffect(() => {
+    if (showFission) setBurstId(id => id + 1);
+  }, [showFission]);
 
   const isotopes = {
     stable: {
@@ -37,14 +112,44 @@ const NucleusVisualization = ({ isotopeType, setIsotopeType, onAddNeutron, showF
     }
   };
 
+  // Mulberry32 — small, deterministic PRNG so the shuffle is stable across renders
+  const mulberry32 = (seed) => {
+    let a = seed >>> 0;
+    return () => {
+      a = (a + 0x6D2B79F5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  };
+
+  // Fisher–Yates with a seeded RNG → same shuffle every render for a given isotope
+  const seededShuffle = (arr, seed) => {
+    const rng = mulberry32(seed);
+    const out = arr.slice();
+    for (let i = out.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out;
+  };
+
   // Generate particle positions in a clustered formation
   const generateParticles = () => {
     const particles = [];
     const totalParticles = config.protons + config.neutrons;
     const layers = Math.ceil(Math.sqrt(totalParticles / 3));
-    
-    let protonCount = 0;
-    let neutronCount = 0;
+
+    // Build a flat type pool (P protons + N neutrons) and shuffle deterministically.
+    // Seed is derived from the isotope composition so each isotope keeps its own
+    // stable mix, but protons/neutrons are spatially interleaved rather than layered.
+    const typePool = [
+      ...Array(config.protons).fill('proton'),
+      ...Array(config.neutrons).fill('neutron'),
+    ];
+    const seed = config.protons * 1000 + config.neutrons;
+    const shuffledTypes = seededShuffle(typePool, seed);
 
     for (let layer = 0; layer < layers; layer++) {
       const particlesInLayer = Math.min(
@@ -55,24 +160,18 @@ const NucleusVisualization = ({ isotopeType, setIsotopeType, onAddNeutron, showF
 
       for (let i = 0; i < particlesInLayer; i++) {
         if (particles.length >= totalParticles) break;
-        
+
         const angle = (i / particlesInLayer) * Math.PI * 2;
         const x = Math.cos(angle) * radius;
         const y = Math.sin(angle) * radius;
-        
-        // Alternate between protons and neutrons
-        const isProton = protonCount < config.protons;
-        
+
         particles.push({
           id: particles.length,
-          type: isProton ? 'proton' : 'neutron',
+          type: shuffledTypes[particles.length],
           x,
           y,
-          layer
+          layer,
         });
-
-        if (isProton) protonCount++;
-        else neutronCount++;
       }
     }
 
@@ -179,7 +278,8 @@ const NucleusVisualization = ({ isotopeType, setIsotopeType, onAddNeutron, showF
       </div>
 
       <div className="visualization-container">
-        <svg className="nucleus-svg" viewBox="-400 -400 800 800">
+        <svg className="nucleus-svg" viewBox="-400 -400 800 800" role="img" aria-label="Nucleus visualization">
+          <title>Cluster of protons and neutrons in an atomic nucleus</title>
           {/* Strong Nuclear Force Glow */}
           <defs>
             <radialGradient id="nuclearGlow">
@@ -289,74 +389,8 @@ const NucleusVisualization = ({ isotopeType, setIsotopeType, onAddNeutron, showF
             )}
           </AnimatePresence>
 
-          {/* Fission Animation */}
-          <AnimatePresence>
-            {showFission && (
-              <>
-                {/* Fragment 1 */}
-                <motion.g
-                  initial={{ x: 0, y: 0, opacity: 1 }}
-                  animate={{ 
-                    x: -200, 
-                    y: -150,
-                    rotate: 360,
-                    opacity: [1, 1, 0]
-                  }}
-                  transition={{ duration: 3, ease: "easeOut" }}
-                >
-                  {particles.slice(0, Math.floor(particles.length / 2)).map(p => (
-                    <motion.circle
-                      key={`frag1-${p.id}`}
-                      cx={p.x * 0.5}
-                      cy={p.y * 0.5}
-                      r="10"
-                      fill={p.type === 'proton' ? '#ef4444' : '#fbbf24'}
-                      filter="url(#glow)"
-                    />
-                  ))}
-                </motion.g>
-
-                {/* Fragment 2 */}
-                <motion.g
-                  initial={{ x: 0, y: 0, opacity: 1 }}
-                  animate={{ 
-                    x: 200, 
-                    y: 150,
-                    rotate: -360,
-                    opacity: [1, 1, 0]
-                  }}
-                  transition={{ duration: 3, ease: "easeOut" }}
-                >
-                  {particles.slice(Math.floor(particles.length / 2)).map(p => (
-                    <motion.circle
-                      key={`frag2-${p.id}`}
-                      cx={p.x * 0.5}
-                      cy={p.y * 0.5}
-                      r="10"
-                      fill={p.type === 'proton' ? '#ef4444' : '#fbbf24'}
-                      filter="url(#glow)"
-                    />
-                  ))}
-                </motion.g>
-
-                {/* Energy Burst */}
-                <motion.circle
-                  cx="0"
-                  cy="0"
-                  r="50"
-                  fill="none"
-                  stroke="#fbbf24"
-                  strokeWidth="4"
-                  initial={{ r: 0, opacity: 1 }}
-                  animate={{ 
-                    r: 300,
-                    opacity: 0
-                  }}
-                  transition={{ duration: 2, ease: "easeOut" }}
-                />
-              </>
-            )}
-          </AnimatePresence>
+          {/* Fission Burst — key changes on each trigger, always runs 1.4 s to completion */}
+          {burstId > 0 && <MiniFissionBurst key={burstId} particles={particles} />}
         </svg>
 
         {/* Stats Display */}

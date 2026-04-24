@@ -90,6 +90,44 @@ const Scene3TextPanel = ({ reactionStarted, controlRodPosition, temperature }) =
             Operators continuously adjust rods to maintain a steady <strong>critical state</strong>, balancing temperatures to safely boil water and power the grid.
           </p>
         </div>
+
+        {/* Moderator / Coolant / Control Rod explainer */}
+        <div className="s3-reactor-controls">
+          <h3 className="concept-title">Moderator, Coolant &amp; Control Rods</h3>
+          <div className="s3-rctrl-cards">
+            {[
+              {
+                icon: '💧',
+                title: 'Moderator',
+                color: '#3b82f6',
+                bg: 'rgba(59,130,246,0.06)',
+                text: 'Slows fast neutrons to thermal (low-energy) speeds so they can efficiently trigger fission in U-235. In most reactors, ordinary light water plays this role.',
+              },
+              {
+                icon: '🌊',
+                title: 'Coolant',
+                color: '#0891b2',
+                bg: 'rgba(8,145,178,0.06)',
+                text: 'Carries heat from the reactor core to the steam generators that drive the turbine. In a PWR, the same water acts as both coolant and moderator — a useful double duty.',
+              },
+              {
+                icon: '⬛',
+                title: 'Control Rods',
+                color: '#64748b',
+                bg: 'rgba(100,116,139,0.08)',
+                text: 'Rods made of boron, cadmium, or hafnium that absorb neutrons. Inserting them reduces the reaction rate; withdrawing them raises power. They are the primary safety brake.',
+              },
+            ].map(({ icon, title, color, bg, text }) => (
+              <div key={title} className="s3-rctrl-card" style={{ borderLeftColor: color, background: bg }}>
+                <span className="s3-rctrl-icon" style={{ color }} aria-hidden="true">{icon}</span>
+                <div>
+                  <h4 className="s3-rctrl-title" style={{ color }}>{title}</h4>
+                  <p className="s3-rctrl-text">{text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
       
       <RealWorldOverlay

@@ -78,10 +78,34 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
 
 /* ── STEPPER ── */
 .nm-stepper {
-  flex: 1; display: flex; align-items: center;
+  flex: 1; display: flex; align-items: center; justify-content: flex-end;
   overflow-x: auto; scrollbar-width: none; padding: 4px 0;
 }
 .nm-stepper::-webkit-scrollbar { display: none; }
+
+.nm-stepper-desktop {
+  display: flex; align-items: center; flex: 1;
+}
+
+.nm-stepper-mobile {
+  display: none;
+}
+
+.nm-mobile-dropdown {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-dark);
+  cursor: pointer;
+  outline: none;
+}
+.nm-mobile-dropdown:focus {
+  border-color: var(--c-accent);
+}
 
 .nm-step {
   display: flex; flex-direction: column; align-items: center;
@@ -115,6 +139,14 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
 }
 .nm-step-active .nm-step-lbl { color: var(--c-accent); }
 .nm-step-done   .nm-step-lbl { color: var(--c-done); }
+
+.nm-step-visited .nm-step-dot {
+  background: transparent;
+  border: 2px dashed #94a3b8;
+  color: #94a3b8;
+  opacity: 0.7;
+}
+.nm-step-visited .nm-step-lbl { color: #94a3b8; opacity: 0.75; }
 
 .nm-line {
   flex: 1; height: 2px; max-width: 52px; min-width: 8px;
@@ -171,6 +203,11 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
 }
 .nm-dot-active { background: var(--c-accent); transform: scale(1.5); }
 .nm-dot-done   { background: var(--c-done); }
+.nm-dot-visited {
+  background: transparent;
+  border: 1.5px dashed #94a3b8;
+  opacity: 0.65;
+}
 
 /* buttons */
 .nm-btn-ghost {
@@ -206,11 +243,85 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
 }
 .nm-btn-skip:hover { color: var(--c-muted); border-color: #94a3b8; }
 
+/* Next + Skip stacked group */
+.nm-next-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+/* Demoted skip as a subtle text-link */
+.nm-skip-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #94a3b8;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s;
+}
+.nm-skip-link:hover { color: var(--c-muted); }
+
+/* Tiny reset link in footer-left */
+.nm-reset-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: #94a3b8;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s;
+  display: block;
+  margin-top: 3px;
+}
+.nm-reset-link:hover { color: #ef4444; }
+
 /* ═══ RESPONSIVE ══════════════════════════════════════════════ */
 @media (max-width: 900px) {
-  .nm-two-col { grid-template-columns: 1fr; padding: 1rem; }
+  .nm-two-col { 
+    grid-template-columns: 1fr; 
+    grid-template-rows: auto 1fr;
+    padding: 1rem; 
+    overflow-y: auto;
+  }
+  .nm-two-col > * {
+    overflow: visible;
+  }
+}
+
+@media (max-width: 600px) {
   .nm-step-lbl { display: none; }
   .nm-brand-name { display: none; }
+  
+  .nm-stepper-desktop { display: none; }
+  .nm-stepper-mobile { display: block; width: 100%; text-align: right; }
+  
+  .nm-header {
+    padding: 0 0.75rem;
+    gap: 1rem;
+  }
+  .nm-scene {
+    overflow-y: auto;
+  }
+  .nm-scene > div {
+    height: auto !important;
+    min-height: 100%;
+  }
+}
+
+/* Ensure all SVGs resize safely without breaking flex/grid */
+.nm-scene svg {
+  max-width: 100%;
+  height: auto;
 }
 
 /* ═══ UNIFIED SCENE CONTENT GRIDS ════════════════════════════ */
@@ -236,6 +347,25 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
   .scene5-content,
   .scene6-content {
     grid-template-columns: 1fr !important;
+    grid-template-rows: auto 1fr;
     padding: 1rem;
+    overflow-y: auto;
+  }
+  .scene2-content > *,
+  .scene3-content > *,
+  .scene4-content > *,
+  .scene5-content > *,
+  .scene6-content > * {
+    overflow: visible;
+  }
+}
+
+@media (max-width: 600px) {
+  .nm-header {
+    padding: 0 0.75rem;
+    gap: 1rem;
+  }
+  .nm-scene {
+    overflow-y: auto;
   }
 }

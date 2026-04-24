@@ -9,6 +9,17 @@ const SPACING = 90;
 const OFFSET_X = -270;  // col 0..6 → -270,-180,-90,0,90,180,270
 const OFFSET_Y = -225;  // row 0..5 → -225,-135,-45,45,135,225
 
+// Water molecule moderator dots: placed at midpoints between nucleus rows/cols
+// x midpoints between 7 nucleus columns (spacing 90): -225,-135,-45,45,135,225
+// y midpoints between 6 nucleus rows   (spacing 90): -180,-90,0,90,180
+const WATER_MOL_X = [-225, -135, -45, 45, 135, 225];
+const WATER_MOL_Y = [-180, -90, 0, 90, 180];
+const WATER_POSITIONS = WATER_MOL_X.flatMap(x =>
+  WATER_MOL_Y.map(y => ({ id: `wm-${x}-${y}`, x, y }))
+); // 30 molecules
+const WATER_SLOW_RADIUS = 20;   // px — neutron must be within this to be thermalised
+const WATER_COOLDOWN_MS = 900;  // ms — one molecule can only slow one neutron per interval
+
 const WOBBLE_MIN = 500;   // ms — delay before a hit nucleus actually splits
 const WOBBLE_MAX = 700;
 
@@ -35,11 +46,14 @@ function makeNuclei() {
 }
 
 const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTemperatureChange, temperature }) => {
-  const nucleiRef   = useRef(makeNuclei());
-  const neutronsRef = useRef([]);
-  const zapsRef     = useRef([]);
-  const rafRef      = useRef(null);
+  const nucleiRef      = useRef(makeNuclei());
+  const neutronsRef    = useRef([]);
+  const zapsRef        = useRef([]);
+  const rafRef         = useRef(null);
   const rodPositionRef = useRef(controlRodPosition);
+  // Map<waterMolId, timestamp> — tracks recently-slowed molecules to prevent
+  // the same molecule from slowing multiple neutrons within WATER_COOLDOWN_MS
+  const waterHitsRef   = useRef(new Map());
   const [tick, setTick] = useState(0);
 
   useEffect(() => { rodPositionRef.current = controlRodPosition; }, [controlRodPosition]);
@@ -55,6 +69,8 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
       return;
     }
 
+    waterHitsRef.current.clear();
+
     // seed neutron aimed at vertical mid-row
     neutronsRef.current = [{
       id: 'n-seed',
@@ -62,6 +78,7 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
       y: OFFSET_Y + Math.floor(ROWS / 2) * SPACING,
       vx: 10,
       vy: 0.25,
+      thermalised: false,
     }];
 
     const loop = () => {
@@ -77,7 +94,7 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
       const spawned   = [];
 
       // ── Move neutrons ─────────────────────────────────────────────────────
-      for (const neutron of neutronsRef.current) {
+      for (let neutron of neutronsRef.current) {
         const nx = neutron.x + neutron.vx;
         const ny = neutron.y + neutron.vy;
 
@@ -112,6 +129,7 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
                 x: n.x, y: n.y,
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed,
+                thermalised: false,
               });
             }
             nuclei[i] = { ...n, state: 'wobbling', wobbleStart: now, wobbleDelay: randomWobble(), pendingNeutrons: pending };
@@ -119,7 +137,27 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
             break;
           }
         }
-        if (!hit) survivors.push({ ...neutron, x: nx, y: ny });
+        if (hit) continue;
+
+        // ── Water molecule moderation: thermalise fast neutrons ──────────
+        let slowed = neutron.thermalised || false;
+        if (!slowed) {
+          for (const wm of WATER_POSITIONS) {
+            const dx = nx - wm.x, dy = ny - wm.y;
+            if (dx * dx + dy * dy < WATER_SLOW_RADIUS * WATER_SLOW_RADIUS) {
+              const lastHit = waterHitsRef.current.get(wm.id) || 0;
+              if (now - lastHit > WATER_COOLDOWN_MS) {
+                // slow by 40% and mark thermalised
+                neutron = { ...neutron, vx: neutron.vx * 0.6, vy: neutron.vy * 0.6, thermalised: true };
+                waterHitsRef.current.set(wm.id, now);
+                slowed = true;
+                break;
+              }
+            }
+          }
+        }
+
+        survivors.push({ ...neutron, x: nx, y: ny });
       }
 
       // ── Wobble → Fission: release pending neutrons after delay ────────────
@@ -157,9 +195,10 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
   }, [reactionStarted, onTemperatureChange]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
-  const nuclei   = nucleiRef.current;
-  const neutrons = neutronsRef.current;
-  const zaps     = zapsRef.current;
+  const nuclei    = nucleiRef.current;
+  const neutrons  = neutronsRef.current;
+  const zaps      = zapsRef.current;
+  const waterHits = waterHitsRef.current;
   // rods start at y=-280, height proportional to position
   const controlRodHeight  = (controlRodPosition / 100) * 560;
   const supercritical = (temperature || 0) > 66;
@@ -179,7 +218,10 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
         className="chain-reaction-svg"
         viewBox="-420 -280 840 560"
         preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label="Chain reaction core with control rods"
       >
+        <title>Animation showing neutrons interacting with uranium nuclei in a reactor core</title>
         <defs>
           {/* Rod: metallic slate-grey gradient */}
           <linearGradient id="rodGrad" x1="0" y1="0" x2="1" y2="0">
@@ -204,6 +246,23 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
+
+        {/* ── Water molecule moderator field (background layer) ── */}
+        <g opacity={reactionStarted ? 1 : 0.45}>
+          {WATER_POSITIONS.map(wm => {
+            const hitAge = waterHits.has(wm.id) ? now - waterHits.get(wm.id) : Infinity;
+            const isFlashing = hitAge < WATER_COOLDOWN_MS;
+            const flashProgress = isFlashing ? Math.min(1, hitAge / WATER_COOLDOWN_MS) : 1;
+            return (
+              <circle
+                key={wm.id}
+                cx={wm.x} cy={wm.y} r={isFlashing ? 5 + (1 - flashProgress) * 3 : 5}
+                fill={isFlashing ? `rgba(125,211,252,${0.75 - flashProgress * 0.55})` : 'rgba(125,211,252,0.18)'}
+                stroke="rgba(56,189,248,0.4)" strokeWidth="0.8"
+              />
+            );
+          })}
+        </g>
 
         {/* ── Control Rods: slide between atom columns from top ── */}
         {ROD_X_POSITIONS.map((rodX, idx) => (

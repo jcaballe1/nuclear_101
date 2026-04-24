@@ -40,7 +40,16 @@ function FlowPipe({ d, stroke, strokeWidth = 16, dashLen = 18, gapLen = 20, dura
 /* ─────────────────────────────────────────────
    Main Component
 ───────────────────────────────────────────── */
-const ReactorAnimation = ({ power, onPowerChange }) => {
+const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
+  /* Reactor-type flags */
+  const isPWR = reactorType === 'PWR';
+  const isBWR = reactorType === 'BWR';
+  const isSMR = reactorType === 'SMR';
+  // PWR & SMR share the primary-loop architecture (closed loop with steam
+  // generator); BWR has no separate primary loop — steam is generated in the
+  // reactor vessel itself and flows directly to the turbine.
+  const hasPrimaryLoop = isPWR || isSMR;
+
   /* Derived animation values */
   const p          = clamp(power / 100, 0, 1);          // 0-1 fraction
   const steamSpeed = lerp(3.5, 0.55, p);                // lower = faster dash cycle
@@ -76,7 +85,10 @@ const ReactorAnimation = ({ power, onPowerChange }) => {
         preserveAspectRatio="xMidYMid meet"
         className="ra-svg"
         xmlns="http://www.w3.org/2000/svg"
+        role="img"
+        aria-label={`Nuclear reactor schematic for ${reactorType}`}
       >
+        <title>Schematic diagram of a {reactorType} nuclear reactor power plant</title>
         <defs>
           {/* Glow filters */}
           <filter id="ra-glow" x="-50%" y="-50%" width="200%" height="200%">
@@ -204,25 +216,145 @@ const ReactorAnimation = ({ power, onPowerChange }) => {
           />
         ))}
 
-        {/* ── PIPES ─────────────────────────────
-            HOT STEAM: Reactor top ─→ Turbine
-            Path: exits -60,-96, curves up to 192,-220
-        ────────────────────────────────────────── */}
+        {/* ── PRIMARY LOOP (orange = pressurised hot water) ─
+            Reactor → Pressuriser tee → Steam Generator → Primary Pump → Reactor.
+            Closed; never leaves containment. PWR & SMR only.
+        ────────────────────────────────────────────────────── */}
+        {hasPrimaryLoop && (<>
+        {/* Hot leg: reactor top → SG primary inlet (top-left) */}
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M -60 -96 Q 32 -96 62 -220 L 192 -220"
+            d="M -60 -96 L -60 -240 L 35 -240 L 35 -200"
             stroke="#c2410c"
-            strokeWidth={18}
+            strokeWidth={16}
+            dashLen={18} gapLen={18}
+            duration={steamSpeed}
+            sheen
+          />
+        </g>
+        {/* Cold leg: SG primary outlet (bottom) → Primary Pump → reactor bottom */}
+        <g opacity={pipeAlpha}>
+          <FlowPipe
+            d="M 65 100 L 65 130 L -60 130 L -60 96"
+            stroke="#b91c1c"
+            strokeWidth={16}
+            dashLen={18} gapLen={18}
+            duration={waterSpeed * 0.85}
+          />
+        </g>
+        </>)}
+
+        {/* Pressuriser surge line (tee onto hot leg) — PWR only (SMR is integral) */}
+        {isPWR && (<>
+        <line x1="5" y1="-240" x2="5" y2="-210"
+          stroke="#000" strokeWidth="12" opacity={pipeAlpha * 0.4} strokeLinecap="round"/>
+        <line x1="5" y1="-240" x2="5" y2="-210"
+          stroke="#c2410c" strokeWidth="7" opacity={pipeAlpha * 0.9} strokeLinecap="round"/>
+
+        {/* Pressuriser vessel */}
+        <g opacity={0.4 + p * 0.55}>
+          <rect x="-15" y="-280" width="40" height="70" rx="8"
+            fill="#475569" stroke="#94a3b8" strokeWidth="2"/>
+          <ellipse cx="5" cy="-280" rx="20" ry="6"
+            fill="#64748b" stroke="#94a3b8" strokeWidth="1.5"/>
+          <motion.rect x="-12" y="-258" width="34" height="44" rx="4"
+            fill="#fb923c"
+            animate={{ opacity: [0.3, 0.55 + p * 0.2, 0.3] }}
+            transition={{ duration: 2.4 - p * 1.2, repeat: Infinity }}
+          />
+          <text x="5" y="-292" fontSize="9" fill="#cbd5e1"
+            textAnchor="middle" fontWeight="700" letterSpacing="1">PRESSURISER</text>
+        </g>
+        </>)}
+
+        {/* Steam Generator (heat exchanger between primary & secondary) — PWR & SMR */}
+        {hasPrimaryLoop && (
+        <g opacity={0.5 + p * 0.5}>
+          <rect x="20" y="-200" width="90" height="300" rx="22"
+            fill="#3b4a5e" stroke="#94a3b8" strokeWidth="2"/>
+          <ellipse cx="65" cy="-200" rx="45" ry="9"
+            fill="#475569" stroke="#94a3b8" strokeWidth="1.5"/>
+          <ellipse cx="65" cy="100" rx="45" ry="9"
+            fill="#475569" stroke="#94a3b8" strokeWidth="1.5"/>
+          {/* Tube bundle */}
+          {[-120, -80, -40, 0, 40, 80].map((ty, i) => (
+            <line key={`sgtb-${i}`} x1="32" y1={ty} x2="98" y2={ty}
+              stroke="#1e293b" strokeWidth="1.5" opacity="0.6"/>
+          ))}
+          {/* Bubbles rising on the secondary side */}
+          {p > 0.05 && [0, 1, 2].map(i => (
+            <motion.circle key={`sgb-${i}`} cx={45 + i * 20} r={3 + p * 2}
+              fill="#fef3c7" fillOpacity={0.7}
+              animate={{ cy: [80, -190], opacity: [0.7, 0] }}
+              transition={{ duration: 2.4 - p * 1.0, repeat: Infinity, delay: i * 0.6, ease: 'easeOut' }}
+            />
+          ))}
+          <text x="65" y="122" fontSize="11" fill="#cbd5e1" textAnchor="middle"
+            fontWeight="700" letterSpacing="1.2">STEAM GENERATOR</text>
+        </g>
+        )}
+
+        {/* Primary circulation pump — PWR only (SMR uses natural circulation) */}
+        {isPWR && (
+        <g opacity={0.45 + p * 0.55}>
+          <circle cx="20" cy="130" r="20"
+            fill="#374151" stroke="#94a3b8" strokeWidth="2"/>
+          <motion.g
+            style={{ transformOrigin: '20px 130px' }}
+            animate={{ rotate: p < 0.02 ? 0 : 360 }}
+            transition={{ duration: lerp(6, 0.5, p), repeat: Infinity, ease: 'linear' }}
+          >
+            {[0, 60, 120, 180, 240, 300].map(deg => (
+              <line key={`ppb-${deg}`}
+                x1="20" y1="130"
+                x2={20 + Math.cos(deg * Math.PI / 180) * 14}
+                y2={130 + Math.sin(deg * Math.PI / 180) * 14}
+                stroke="#fda4af" strokeWidth="2.5" strokeLinecap="round"/>
+            ))}
+          </motion.g>
+          <circle cx="20" cy="130" r="4" fill="#94a3b8"/>
+          <text x="20" y="168" fontSize="9" fill="#94a3b8" textAnchor="middle"
+            fontWeight="700" letterSpacing="0.6">PRIMARY PUMP</text>
+        </g>
+        )}
+
+        {/* ── SECONDARY LOOP — hot steam: SG → Turbine ── (PWR & SMR) */}
+        {hasPrimaryLoop && (<>
+        <g opacity={pipeAlpha}>
+          <FlowPipe
+            d="M 95 -200 L 95 -220 L 192 -220"
+            stroke="#c2410c"
+            strokeWidth={16}
             dashLen={20} gapLen={18}
             duration={steamSpeed}
             sheen
           />
         </g>
-        <motion.text x="72" y="-140" fontSize="11" fill="#fb923c"
+        <motion.text x="140" y="-232" fontSize="10" fill="#fb923c"
           textAnchor="middle" fontStyle="italic"
           animate={{ opacity: pipeAlpha * 0.85 }}>
           hot steam
         </motion.text>
+        </>)}
+
+        {/* ── BWR DIRECT-STEAM LOOP — reactor top → turbine ── */}
+        {isBWR && (<>
+        <g opacity={pipeAlpha}>
+          <FlowPipe
+            d="M -60 -96 L -60 -260 L 192 -260 L 192 -220"
+            stroke="#c2410c"
+            strokeWidth={16}
+            dashLen={20} gapLen={18}
+            duration={steamSpeed}
+            sheen
+          />
+        </g>
+        <motion.text x="66" y="-272" fontSize="10" fill="#fb923c"
+          textAnchor="middle" fontStyle="italic"
+          animate={{ opacity: pipeAlpha * 0.85 }}>
+          direct steam (slightly radioactive)
+        </motion.text>
+        </>)}
 
         {/* ── TURBINE ───────────────────────────── */}
         <rect x="192" y="-285" width="160" height="130" rx="14"
@@ -362,15 +494,88 @@ const ReactorAnimation = ({ power, onPowerChange }) => {
             textAnchor="middle" fontWeight="600">Power Grid</text>
         </g>
 
-        {/* ── SPENT STEAM PIPE: Turbine ─→ Cooling tower ── */}
+        {/* ── SECONDARY LOOP — spent steam: Turbine → Condenser ── */}
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M 270 -155 L 270 82"
+            d="M 270 -155 L 270 10"
             stroke="#7c3aed"
-            strokeWidth={18}
+            strokeWidth={16}
             dashLen={16} gapLen={20}
             duration={spentSpeed}
           />
+        </g>
+        <motion.text x="310" y="-72" fontSize="10" fill="#c4b5fd"
+          textAnchor="start" fontStyle="italic"
+          animate={{ opacity: pipeAlpha * 0.85 }}>
+          spent steam
+        </motion.text>
+
+        {/* ── CONDENSER (where steam gives up its latent heat) ── */}
+        <g opacity={0.5 + p * 0.5}>
+          <rect x="200" y="10" width="160" height="70" rx="14"
+            fill="#1e3a8a" stroke="#60a5fa" strokeWidth="2"/>
+          {/* Tube bundle (tertiary water flows through these) */}
+          {[28, 45, 62].map((ty, i) => (
+            <line key={`cb-${i}`} x1="210" y1={ty} x2="350" y2={ty}
+              stroke="#0c1a3a" strokeWidth="1.5" opacity="0.7"/>
+          ))}
+          {/* Condensation droplets */}
+          {p > 0.05 && [0, 1, 2, 3].map(i => (
+            <motion.circle key={`cd-${i}`} cx={225 + i * 32} r={2.5}
+              fill="#bae6fd"
+              animate={{ cy: [12, 78], opacity: [0.85, 0] }}
+              transition={{ duration: 1.6 - p * 0.5, repeat: Infinity, delay: i * 0.4, ease: 'easeIn' }}
+            />
+          ))}
+          <text x="280" y="100" fontSize="11" fill="#bae6fd" textAnchor="middle"
+            fontWeight="700" letterSpacing="1.2">CONDENSER</text>
+        </g>
+
+        {/* ── SECONDARY LOOP — feedwater: Condenser → Feedwater Pump → SG ── (PWR & SMR) */}
+        {hasPrimaryLoop && (
+        <g opacity={pipeAlpha}>
+          <FlowPipe
+            d="M 200 50 L 110 50"
+            stroke="#1d4ed8"
+            strokeWidth={14}
+            dashLen={16} gapLen={16}
+            duration={waterSpeed}
+            sheen
+          />
+        </g>
+        )}
+        {/* ── BWR feedwater: Condenser → Feedwater Pump → reactor bottom ── */}
+        {isBWR && (
+        <g opacity={pipeAlpha}>
+          <FlowPipe
+            d="M 200 50 L 155 50 L -30 50 L -30 96 L -60 96"
+            stroke="#1d4ed8"
+            strokeWidth={14}
+            dashLen={16} gapLen={16}
+            duration={waterSpeed}
+            sheen
+          />
+        </g>
+        )}
+        {/* Feedwater pump */}
+        <g opacity={0.5 + p * 0.5}>
+          <circle cx="155" cy="50" r="16"
+            fill="#1e40af" stroke="#60a5fa" strokeWidth="2"/>
+          <motion.g
+            style={{ transformOrigin: '155px 50px' }}
+            animate={{ rotate: p < 0.02 ? 0 : -360 }}
+            transition={{ duration: lerp(6, 0.5, p), repeat: Infinity, ease: 'linear' }}
+          >
+            {[0, 90, 180, 270].map(deg => (
+              <line key={`fpb-${deg}`}
+                x1="155" y1="50"
+                x2={155 + Math.cos(deg * Math.PI / 180) * 11}
+                y2={50 + Math.sin(deg * Math.PI / 180) * 11}
+                stroke="#bfdbfe" strokeWidth="2" strokeLinecap="round"/>
+            ))}
+          </motion.g>
+          <text x="155" y="82" fontSize="9" fill="#93c5fd" textAnchor="middle"
+            fontWeight="700" letterSpacing="0.6">FEEDWATER PUMP</text>
         </g>
 
         {/* ── COOLING TOWER ──────────────────────── */}
@@ -395,35 +600,102 @@ const ReactorAnimation = ({ power, onPowerChange }) => {
           COOLING TOWER
         </text>
 
-        {/* ── COLD WATER RETURN: Cooling tower ─→ Reactor ── */}
+        {/* ── TERTIARY LOOP — Condenser ↔ Cooling Tower ──
+            Open loop: warm water leaves the condenser, sheds its heat
+            to the atmosphere in the tower, then is pumped back. Never
+            touches the radioactive primary water.
+        ──────────────────────────────────────────────── */}
+        {/* Warm water out (condenser → top of cooling tower) */}
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M 238 218 L -150 218 L -150 124"
+            d="M 360 30 L 410 30 L 410 140 L 340 140"
+            stroke="#0891b2"
+            strokeWidth={14}
+            dashLen={18} gapLen={16}
+            duration={waterSpeed}
+          />
+        </g>
+        {/* Cool water return (tower base → tertiary pump → condenser) */}
+        <g opacity={pipeAlpha}>
+          <FlowPipe
+            d="M 240 290 L 180 290 L 180 65 L 200 65"
             stroke="#1d4ed8"
-            strokeWidth={18}
+            strokeWidth={14}
             dashLen={18} gapLen={16}
             duration={waterSpeed}
             sheen
           />
         </g>
-        <motion.text x="44" y="206" fontSize="11" fill="#60a5fa"
-          textAnchor="middle" fontStyle="italic"
-          animate={{ opacity: pipeAlpha * 0.8 }}>
-          Cold Water Return Loop
-        </motion.text>
+        {/* Tertiary circulating pump */}
+        <g opacity={0.5 + p * 0.5}>
+          <circle cx="180" cy="185" r="15"
+            fill="#1e40af" stroke="#60a5fa" strokeWidth="2"/>
+          <motion.g
+            style={{ transformOrigin: '180px 185px' }}
+            animate={{ rotate: p < 0.02 ? 0 : 360 }}
+            transition={{ duration: lerp(6, 0.5, p), repeat: Infinity, ease: 'linear' }}
+          >
+            {[0, 90, 180, 270].map(deg => (
+              <line key={`tpb-${deg}`}
+                x1="180" y1="185"
+                x2={180 + Math.cos(deg * Math.PI / 180) * 10}
+                y2={185 + Math.sin(deg * Math.PI / 180) * 10}
+                stroke="#bfdbfe" strokeWidth="2" strokeLinecap="round"/>
+            ))}
+          </motion.g>
+          <text x="180" y="214" fontSize="9" fill="#93c5fd" textAnchor="middle"
+            fontWeight="700" letterSpacing="0.6">CIRC. PUMP</text>
+        </g>
+
+        {/* ── SMR INTEGRAL VESSEL OVERLAY + MODULAR BADGE ──
+            SMRs house the steam generator (and pressuriser) inside a single
+            compact pressure vessel. We draw a dashed cyan outline around the
+            reactor + SG region to make the integration visually obvious.
+        ─────────────────────────────────────────────────────────────── */}
+        {isSMR && (
+        <g>
+          {/* Integral-vessel boundary */}
+          <rect x="-265" y="-210" width="395" height="370" rx="32"
+            fill="none" stroke="#22d3ee" strokeWidth="3"
+            strokeDasharray="10 7" opacity="0.7"/>
+          <rect x="-265" y="-232" width="165" height="22" rx="6"
+            fill="#0e7490" stroke="#22d3ee" strokeWidth="1.2"/>
+          <text x="-182" y="-217" fontSize="11" fill="#cffafe"
+            textAnchor="middle" fontWeight="800" letterSpacing="1.4">
+            INTEGRAL VESSEL
+          </text>
+          {/* MODULAR badge — single factory-built unit */}
+          <g transform="translate(-70,-380)">
+            <rect x="0" y="0" width="120" height="30" rx="6"
+              fill="#7c2d12" stroke="#fb923c" strokeWidth="1.5"
+              opacity="0.95"/>
+            <text x="60" y="20" fontSize="13" fill="#fed7aa"
+              textAnchor="middle" fontWeight="800" letterSpacing="1.8">
+              ▦ MODULAR
+            </text>
+            <text x="60" y="45" fontSize="9" fill="#fdba74"
+              textAnchor="middle" fontStyle="italic" letterSpacing="0.5">
+              factory-built · ~50–300 MWe
+            </text>
+          </g>
+        </g>
+        )}
 
         {/* ── PIPE JOINT FLANGES ─────────────────── */}
-        {/* Hot steam joint at reactor exit */}
-        <circle cx="-60" cy="-96" r="9" fill="#475569" stroke="#64748b" strokeWidth="1.5"
+        {/* Primary hot leg exiting reactor top */}
+        <circle cx="-60" cy="-96" r="9" fill="#7f1d1d" stroke="#ef4444" strokeWidth="1.5"
           opacity={pipeAlpha}/>
-        {/* Condensed steam entry to turbine */}
+        {/* Primary cold leg entering reactor bottom */}
+        <circle cx="-60" cy="96" r="9" fill="#7f1d1d" stroke="#ef4444" strokeWidth="1.5"
+          opacity={pipeAlpha}/>
+        {/* Hot steam entering turbine */}
         <circle cx="192" cy="-220" r="9" fill="#475569" stroke="#64748b" strokeWidth="1.5"
           opacity={pipeAlpha}/>
-        {/* Turbine spent steam exit */}
+        {/* Spent steam leaving turbine */}
         <circle cx="270" cy="-155" r="9" fill="#475569" stroke="#64748b" strokeWidth="1.5"
           opacity={pipeAlpha}/>
-        {/* Cold water entry to reactor */}
-        <circle cx="-150" cy="124" r="9" fill="#1e40af" stroke="#3b82f6" strokeWidth="1.5"
+        {/* Spent steam entering condenser */}
+        <circle cx="270" cy="10" r="7" fill="#1e3a8a" stroke="#60a5fa" strokeWidth="1.5"
           opacity={pipeAlpha}/>
 
         {/* ── IDLE PROMPT ────────────────────────── */}

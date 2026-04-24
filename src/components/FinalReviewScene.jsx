@@ -35,9 +35,16 @@ const CYCLE = [
   },
 ];
 
-const FinalReviewScene = ({ completedScenes = new Set(), onRestart }) => {
+const KEY_STATS = [
+  { label: 'World Electricity Share', value: '~10%', note: 'Nuclear supplies about one-tenth of global electricity.' },
+  { label: 'Deaths per TWh', value: '~0.03', note: 'Our World in Data ranks nuclear among the safest major energy sources.' },
+  { label: 'Lifecycle Carbon', value: '~12 gCO2e/kWh', note: 'Comparable to wind and far below coal or gas.' },
+];
+
+const FinalReviewScene = ({ completedScenes = new Set(), visitedScenes = new Set(), onRestart }) => {
   const [visible, setVisible] = useState([]);
   const score = completedScenes.size;
+  const visitedOnlyCount = [...visitedScenes].filter(id => !completedScenes.has(id)).length;
   const allDone = score >= 6;
 
   useEffect(() => {
@@ -75,7 +82,9 @@ const FinalReviewScene = ({ completedScenes = new Set(), onRestart }) => {
               transition={{ duration: 1, delay: 0.4, ease: 'easeOut' }}
             />
           </div>
-          <span className="fr-progress-lbl">{score}/6 completed</span>
+          <span className="fr-progress-lbl">
+            {score}/6 completed{visitedOnlyCount > 0 ? ` · ${visitedOnlyCount} skipped` : ''}
+          </span>
         </div>
       </motion.div>
 
@@ -86,7 +95,7 @@ const FinalReviewScene = ({ completedScenes = new Set(), onRestart }) => {
             <AnimatePresence>
               {visible.includes(step.id) && (
                 <motion.div
-                  className={`fr-card ${completedScenes.has(step.id) ? 'fr-done' : ''}`}
+                  className={`fr-card ${completedScenes.has(step.id) ? 'fr-done' : visitedScenes.has(step.id) ? 'fr-visited' : ''}`}
                   style={{ '--sc': step.color, '--sg': step.glow }}
                   initial={{ opacity: 0, y: 20, scale: 0.88 }}
                   animate={{ opacity: 1, y: 0,  scale: 1 }}
@@ -106,6 +115,14 @@ const FinalReviewScene = ({ completedScenes = new Set(), onRestart }) => {
                       animate={{ scale: 1 }}
                       transition={{ type: 'spring', bounce: 0.5, delay: 0.15 }}
                     >✓</motion.div>
+                  )}
+                  {visitedScenes.has(step.id) && !completedScenes.has(step.id) && (
+                    <motion.div
+                      className="fr-check-visited"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', bounce: 0.4, delay: 0.15 }}
+                    >~</motion.div>
                   )}
                 </motion.div>
               )}
@@ -134,11 +151,13 @@ const FinalReviewScene = ({ completedScenes = new Set(), onRestart }) => {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.6 }}
       >
-        <p>
-          Nuclear power generates <strong>~10% of the world's electricity</strong> with
-          the lowest lifecycle carbon emissions of any energy source — roughly equivalent
-          to onshore wind. France meets <strong>70% of its electricity demand</strong> with nuclear.
-        </p>
+        {KEY_STATS.map((stat) => (
+          <div key={stat.label} className="fr-stat">
+            <span className="fr-stat-label">{stat.label}</span>
+            <strong className="fr-stat-value">{stat.value}</strong>
+            <span className="fr-stat-note">{stat.note}</span>
+          </div>
+        ))}
       </motion.div>
 
       {/* ── ACTIONS ── */}

@@ -9,12 +9,13 @@ const Scene2Fission = ({ onComplete }) => {
   const [fissionStarted, setFissionStarted] = useState(false);
   const [showBalance, setShowBalance] = useState(false);
 
+  const handleFissionComplete = () => {
+    setShowBalance(true);
+    if (onComplete) onComplete();
+  };
+
   const handleStartFission = () => {
     setFissionStarted(true);
-    setTimeout(() => {
-      setShowBalance(true);
-      if (onComplete) onComplete();
-    }, 3500);
   };
 
   const handleReset = () => {
@@ -34,7 +35,7 @@ const Scene2Fission = ({ onComplete }) => {
           <div className="fission-canvas-wrap">
             <FissionAnimation
               fissionStarted={fissionStarted}
-              onComplete={() => {}}
+              onComplete={handleFissionComplete}
             />
           </div>
 
@@ -48,20 +49,20 @@ const Scene2Fission = ({ onComplete }) => {
               >
                 Initiate Fission
               </motion.button>
-            ) : (
+            ) : showBalance ? (
               <motion.button
                 className="reset-btn"
                 onClick={handleReset}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 4 }}
+                transition={{ duration: 0.25 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <span className="btn-icon">↻</span>
                 Reset
               </motion.button>
-            )}
+            ) : null}
           </div>
 
           <AnimatePresence>

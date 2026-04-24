@@ -42,3 +42,55 @@
   overflow: hidden;
 }
 
+
+
+/* -- Reactor-type tab strip (PWR / BWR / SMR) -- */
+.s4-type-tabs {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.4rem 0.4rem 0.55rem;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid #1e3a5f;
+  flex-shrink: 0;
+}
+
+.s4-type-tab {
+  flex: 1;
+  background: rgba(15, 23, 41, 0.6);
+  border: 1.5px solid #1e3a5f;
+  border-radius: 8px 8px 4px 4px;
+  padding: 0.5rem 0.6rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  transition: all 0.18s ease;
+  color: #94a3b8;
+  font-family: inherit;
+}
+
+.s4-type-tab:hover {
+  background: rgba(30, 58, 95, 0.7);
+  border-color: #3b82f6;
+  color: #cbd5e1;
+}
+
+.s4-type-tab.active {
+  background: linear-gradient(160deg, rgba(59,130,246,0.18), rgba(34,211,238,0.10));
+  border-color: #60a5fa;
+  color: #e2e8f0;
+  box-shadow: 0 0 12px rgba(96, 165, 250, 0.25);
+}
+
+.s4-type-tab-label {
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 1.2px;
+}
+
+.s4-type-tab-sub {
+  font-size: 0.7rem;
+  opacity: 0.85;
+  font-style: italic;
+}

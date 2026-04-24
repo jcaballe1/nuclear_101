@@ -101,8 +101,34 @@ const NuclearWasteAnimation = ({ onComplete }) => {
     }, 9000);
   };
 
-  const stA = fuelRodPosition !== 'reactor' ? (canMoveToCask || fuelRodPosition !== 'pool' ? 'done' : 'active') : 'idle';
-  const stB = !poolActive ? 'idle' : sensorGreen ? 'done' : fuelRodPosition === 'cask' ? 'active' : canMoveToCask ? 'waiting' : 'idle';
+  // Step A — Cooling Pool
+  //   idle   : rod still in reactor (nothing has started)
+  //   active : rod is in the pool but NOT yet cooled (timer running)
+  //   done   : rod has cooled enough to move → canMoveToCask is true
+  //   (stays 'done' once the rod leaves the pool for the cask / recycling)
+  const stA = fuelRodPosition === 'reactor'
+    ? 'idle'
+    : canMoveToCask
+      ? 'done'
+      : fuelRodPosition === 'pool'
+        ? 'active'
+        : 'done'; // left pool before canMoveToCask could flip — treat as done
+
+  // Step B — Dry Cask sealing
+  //   idle   : rod not yet in cask (still in reactor or pool)
+  //   active : rod is in cask but lid not sealed yet (caskClosed = false)
+  //   done   : cask sealed and sensor confirmed green (sensorGreen = true)
+  const stB = sensorGreen
+    ? 'done'
+    : fuelRodPosition === 'cask' && !caskClosed
+      ? 'active'
+      : 'idle';
+
+  // Step C — Recycling (logic unchanged from original)
+  //   idle    : cask not yet sealed
+  //   waiting : sealed but recycling not started
+  //   active  : recycling sequence running
+  //   done    : conveyor visible → recycling complete
   const stC = !sensorGreen ? 'idle' : showConveyor ? 'done' : recyclingActive ? 'active' : 'waiting';
   const STEPS = [
     { key: 'A', label: 'Cooling Pool', st: stA },
@@ -173,7 +199,7 @@ const NuclearWasteAnimation = ({ onComplete }) => {
               )}
             </div>
 
-            <div className="nwa-arrow">→</div>
+            <div className="nwa-arrow" aria-hidden="true">→</div>
 
             <div className={`nwa-pool ${dragOverPool ? 'nwa-pool-target' : ''}`} ref={poolRef}>
               <div className={`nwa-pool-water ${poolActive ? 'nwa-cherenkov' : ''}`}>
@@ -299,7 +325,7 @@ const NuclearWasteAnimation = ({ onComplete }) => {
                 </div>
                 <div className="nwa-sensor-scale" />
               </div>
-              <span className="nwa-sensor-label">{sensorGreen ? '✓ SAFE & SEALED' : 'Monitoring…'}</span>
+              <span className="nwa-sensor-label">{sensorGreen ? '✓ SAFE & SEALED' : '⏳ Monitoring…'}</span>
               {sensorGreen && (
                 <motion.div
                   className="nwa-sensor-ring"

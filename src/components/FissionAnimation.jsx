@@ -1,9 +1,45 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './FissionAnimation.css';
 
-const FissionAnimation = ({ fissionStarted }) => {
-  const generateNucleusParticles = (count, offset = { x: 0, y: 0 }) => {
+// Last substantive animation: fragment translate delay 2.25 s + duration 1.6 s.
+// Keeping this as a named constant makes Scene2Fission.jsx independent of
+// internal timing — the callback is the single source of truth.
+const FISSION_COMPLETE_MS = (2.25 + 1.6) * 1000; // 3850 ms
+
+const FissionAnimation = ({ fissionStarted, onComplete }) => {
+  useEffect(() => {
+    if (!fissionStarted) return;
+    const t = setTimeout(() => onComplete?.(), FISSION_COMPLETE_MS);
+    return () => clearTimeout(t);
+  }, [fissionStarted, onComplete]);
+  // Mulberry32 — small deterministic PRNG so the proton/neutron interleave
+  // is stable across re-renders (no flicker when Framer Motion re-runs).
+  const mulberry32 = (seed) => {
+    let a = seed >>> 0;
+    return () => {
+      a = (a + 0x6D2B79F5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  };
+
+  const seededShuffle = (arr, seed) => {
+    const rng = mulberry32(seed);
+    const out = arr.slice();
+    for (let i = out.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out;
+  };
+
+  // Build a position cluster + (optionally) a shuffled proton/neutron type list
+  // for that cluster. `protonRatio` lets callers match the real Z/A ratio of
+  // the nuclide so protons and neutrons are spatially MIXED, not banded.
+  const generateNucleusParticles = (count, offset = { x: 0, y: 0 }, protonRatio = null, seed = 1) => {
     const particles = [];
     const layers = Math.ceil(Math.sqrt(count / 3));
     for (let layer = 0; layer < layers; layer++) {
@@ -18,18 +54,31 @@ const FissionAnimation = ({ fissionStarted }) => {
         });
       }
     }
+
+    if (protonRatio != null) {
+      const numProtons = Math.round(particles.length * protonRatio);
+      const types = [
+        ...Array(numProtons).fill('proton'),
+        ...Array(particles.length - numProtons).fill('neutron'),
+      ];
+      const shuffled = seededShuffle(types, seed);
+      particles.forEach((p, idx) => { p.type = shuffled[idx]; });
+    }
     return particles;
   };
 
-  // U-235 initial particles (coloured alternately proton/neutron)
-  const u235Particles = generateNucleusParticles(60);
-  // Asymmetric fragments: Kr-92 (smaller) and Ba-141 (larger)
+  // U-235: 92 protons / 143 neutrons → ratio ≈ 0.391.
+  // Mixed types so vibrating U-236 in stage 2 shows interleaved purple/yellow,
+  // not the previous index-alternation banding.
+  const u235Particles = generateNucleusParticles(60, { x: 0, y: 0 }, 92 / (92 + 143), 235);
+  // Fragments stay single-coloured (they represent whole nuclei, not nucleons).
   const krParticles  = generateNucleusParticles(28);
   const baParticles  = generateNucleusParticles(48);
 
   return (
     <div className="fission-animation-container">
-      <svg className="fission-svg" viewBox="-400 -260 800 520">
+      <svg className="fission-svg" viewBox="-400 -260 800 520" role="img" aria-label="Nuclear fission animation">
+        <title>A neutron splitting a uranium nucleus into two lighter nuclei</title>
         <defs>
           <radialGradient id="energyGlow">
             <stop offset="0%"   stopColor="#fbbf24" stopOpacity="0.85" />
@@ -60,18 +109,21 @@ const FissionAnimation = ({ fissionStarted }) => {
             /* ── IDLE: U-235 nucleus ─────────────────────────────────── */
             <motion.g key="idle" exit={{ opacity: 0, transition: { duration: 0.3 } }}>
               <circle cx="0" cy="0" r="110" fill="url(#energyGlow)" opacity="0.25" />
-              {u235Particles.map((p, i) => (
-                <motion.circle
-                  key={i}
-                  cx={p.x} cy={p.y} r="7"
-                  fill={i % 2 === 0 ? '#a855f7' : '#fbbf24'}
-                  stroke={i % 2 === 0 ? '#e9d5ff' : '#fef3c7'}
-                  strokeWidth="1"
-                  filter="url(#particleGlow)"
-                  animate={{ scale: [1, 1.08, 1] }}
-                  transition={{ duration: 1.8 + (i % 5) * 0.2, repeat: Infinity, ease: 'easeInOut' }}
-                />
-              ))}
+              {u235Particles.map((p, i) => {
+                const isProton = p.type === 'proton';
+                return (
+                  <motion.circle
+                    key={i}
+                    cx={p.x} cy={p.y} r="7"
+                    fill={isProton ? '#a855f7' : '#fbbf24'}
+                    stroke={isProton ? '#e9d5ff' : '#fef3c7'}
+                    strokeWidth="1"
+                    filter="url(#particleGlow)"
+                    animate={{ scale: [1, 1.08, 1] }}
+                    transition={{ duration: 1.8 + (i % 5) * 0.2, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                );
+              })}
               <text x="0" y="135" textAnchor="middle" fill="#a855f7" fontSize="15" fontWeight="700">⁹²U²³⁵</text>
               <text x="0" y="-145" textAnchor="middle" fill="#94a3b8" fontSize="12" fontWeight="600">
                 Waiting for neutron…
@@ -118,20 +170,23 @@ const FissionAnimation = ({ fissionStarted }) => {
                   transition={{ duration: 1.4, delay: 0.8, ease: 'easeIn' }}
                 />
                 {/* Vibrating particles */}
-                {u235Particles.map((p, i) => (
-                  <motion.circle
-                    key={`vib-${i}`}
-                    cx={p.x} cy={p.y} r="6.5"
-                    fill={i % 2 === 0 ? '#a855f7' : '#fbbf24'}
-                    filter="url(#particleGlow)"
-                    animate={{
-                      x: [0, (i % 2 === 0 ? -1 : 1) * (8 + (i % 4) * 4), 0],
-                      y: [0, (Math.sin(i) * 6), 0],
-                      scale: [1, 1.25, 1],
-                    }}
-                    transition={{ duration: 0.18, repeat: 7, delay: 0.82 + i * 0.004 }}
-                  />
-                ))}
+                {u235Particles.map((p, i) => {
+                  const isProton = p.type === 'proton';
+                  return (
+                    <motion.circle
+                      key={`vib-${i}`}
+                      cx={p.x} cy={p.y} r="6.5"
+                      fill={isProton ? '#a855f7' : '#fbbf24'}
+                      filter="url(#particleGlow)"
+                      animate={{
+                        x: [0, (isProton ? -1 : 1) * (8 + (i % 4) * 4), 0],
+                        y: [0, (Math.sin(i) * 6), 0],
+                        scale: [1, 1.25, 1],
+                      }}
+                      transition={{ duration: 0.18, repeat: 7, delay: 0.82 + i * 0.004 }}
+                    />
+                  );
+                })}
                 <text x="0" y="-130" textAnchor="middle" fill="#c4b5fd" fontSize="13" fontWeight="700">
                   ⁹²U²³⁶ — stretching…
                 </text>

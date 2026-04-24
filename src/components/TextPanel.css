@@ -85,6 +85,35 @@
   font-weight: bold;
 }
 
+/* ── SCENE 1 LIST ITEMS ── */
+.tp-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.tp-list-icon {
+  flex-shrink: 0;
+  color: #C5A059;
+  background: rgba(197, 160, 89, 0.1);
+  border-radius: 8px;
+  padding: 0.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.1rem;
+}
+
+.tp-list-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.tp-list-heading::before {
+  display: none;
+}
+
 .section-text {
   color: #475569;
   line-height: 1.7;
@@ -187,4 +216,74 @@
 .fission-next-btn:active {
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0px 0px #7f1d1d;
+}
+
+/* ── Enrichment Bar Widget ── */
+.enrich-widget {
+  margin-top: 1.25rem;
+  padding: 1rem 1.1rem;
+  background: rgba(197, 160, 89, 0.07);
+  border: 1px solid #e2c98a;
+  border-left: 4px solid #d97706;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.enrich-title {
+  margin: 0 0 0.35rem 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: 'Lora', Georgia, serif;
+  color: #92400e;
+  letter-spacing: 0.3px;
+}
+
+.enrich-row {
+  display: grid;
+  grid-template-columns: 7rem 1fr 2.8rem auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.enrich-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  white-space: nowrap;
+}
+
+.enrich-track {
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.enrich-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.enrich-pct {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.enrich-note {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.enrich-caption {
+  margin: 0.2rem 0 0 0;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  line-height: 1.45;
 }
