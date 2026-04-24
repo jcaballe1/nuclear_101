@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RealWorldOverlay from './RealWorldOverlay';
+import Term from './Term';
 import './Scene3TextPanel.css';
 
 const Scene3TextPanel = ({ reactionStarted, controlRodPosition, temperature }) => {
@@ -24,7 +25,7 @@ const Scene3TextPanel = ({ reactionStarted, controlRodPosition, temperature }) =
         <div className="concept-section">
           <h3 className="concept-title">The Chain Reaction</h3>
           <p className="concept-text" style={{ marginBottom: '8px' }}>
-            A splitting U-235 atom releases 2-3 neutrons, triggering a self-sustaining cascade:
+            A splitting <Term term="Uranium-235" display="U-235" /> atom releases 2-3 <Term term="neutrons" />, triggering a self-sustaining cascade:
           </p>
           <ul className="stages-list" style={{ paddingLeft: '20px', margin: '0', display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <li><strong>Initiation:</strong> One neutron splits a nucleus, freeing more neutrons.</li>

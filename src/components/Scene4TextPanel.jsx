@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RealWorldOverlay from './RealWorldOverlay';
+import Term from './Term';
 import './Scene4TextPanel.css';
 
 const REACTOR_BLURBS = {
@@ -42,7 +43,7 @@ const Scene4TextPanel = ({ animationStarted, reactorType = 'PWR' }) => {
         
         <div className="intro-section">
           <p className="intro-text">
-            Despite the complex quantum physics, a nuclear power plant has a simple goal: boiling water. We replace the coal fire with fission heat.
+            Despite the complex quantum physics, a nuclear power plant has a simple goal: boiling water. We replace the coal fire with <Term term="fission" /> heat.
           </p>
         </div>
 
@@ -58,7 +59,7 @@ const Scene4TextPanel = ({ animationStarted, reactorType = 'PWR' }) => {
             transition={{ duration: 0.25 }}
           >
             <h3 className="s4-type-title" style={{ color: REACTOR_BLURBS[reactorType].accent }}>
-              {REACTOR_BLURBS[reactorType].title}
+              <Term term={reactorType} display={REACTOR_BLURBS[reactorType].title} />
             </h3>
             <p className="s4-type-text">{REACTOR_BLURBS[reactorType].text}</p>
           </motion.div>
@@ -76,10 +77,10 @@ const Scene4TextPanel = ({ animationStarted, reactorType = 'PWR' }) => {
             >
               <div className="s4-jt-header">
                 <span className="s4-jt-icon" aria-hidden="true">⚑</span>
-                <h4 className="s4-jt-title">Why SMRs matter for Just Transition</h4>
+                <h4 className="s4-jt-title">Why <Term term="SMR" display="SMRs" /> matter for Just Transition</h4>
               </div>
               <p className="s4-jt-text">
-                Coal plants leaving the grid take with them <strong>jobs, grid connections, district-heat infrastructure and tax revenue</strong>. SMRs can re-use that same site footprint and connection point, retain the technical workforce, and provide firm low-carbon power to bridge the variability of wind and solar — without requiring a multi-decade megaproject.
+                Coal plants leaving the grid take with them <strong>jobs, grid connections, district-heat infrastructure and tax revenue</strong>. <Term term="SMR" display="SMRs" /> can re-use that same site footprint and connection point, retain the technical workforce, and provide firm low-carbon power to bridge the variability of wind and solar — without requiring a multi-decade megaproject.
               </p>
             </motion.div>
           )}
@@ -94,7 +95,7 @@ const Scene4TextPanel = ({ animationStarted, reactorType = 'PWR' }) => {
           >
           
           <ol style={{ listStyle: 'decimal', paddingLeft: '1.5rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <li><strong>Heat generation (primary loop):</strong> The uranium core heats pressurised water to over 300&nbsp;°C. A <em>pressuriser</em> keeps it above 150&nbsp;bar so it cannot boil. A primary pump circulates it through the reactor.</li>
+            <li><strong>Heat generation (primary loop):</strong> The uranium core heats pressurised water to over 300 °C. A <em>pressuriser</em> keeps it above 150 bar so it cannot boil. A primary pump circulates it through the reactor.</li>
             <li><strong>Steam generator (heat exchanger):</strong> The hot primary water flows through tubes inside the <em>steam generator</em>, where its heat boils a separate, non-radioactive water supply on the secondary side into high-pressure steam.</li>
             <li><strong>The turbine:</strong> That steam blasts through the <em>turbine</em>, spinning massive blades that drive the generator shaft.</li>
             <li><strong>The generator:</strong> Magnets rotating inside copper coils convert the mechanical motion into electricity via electromagnetic induction.</li>

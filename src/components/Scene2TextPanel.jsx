@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RealWorldOverlay from './RealWorldOverlay';
+import Term from './Term';
 import './Scene2TextPanel.css';
 
 const Scene2TextPanel = ({ fissionStarted, showBalance }) => {
@@ -30,8 +31,8 @@ const Scene2TextPanel = ({ fissionStarted, showBalance }) => {
             <h3 className="stage-number">Stage 1</h3>
             <h4 className="stage-title">Neutron Capture</h4>
             <p className="stage-text">
-              A slow-moving neutron approaches the Uranium-235 nucleus. The nucleus,
-              with 92 protons and 143 neutrons, is already in a delicate state of balance.
+              A slow-moving <Term term="neutrons" display="neutron" /> approaches the <Term term="Uranium-235" display="Uranium-235" /> nucleus. The nucleus,
+              with 92 <Term term="protons" /> and 143 <Term term="neutrons" />, is already in a delicate state of balance.
             </p>
           </motion.div>
 
@@ -61,7 +62,7 @@ const Scene2TextPanel = ({ fissionStarted, showBalance }) => {
             <p className="stage-text">
               The electrostatic repulsion overcomes the strong nuclear force.
               The nucleus splits into two lighter fragments (typically Krypton-92
-              and Barium-141), releasing 2-3 additional neutrons.
+              and Barium-141), releasing 2-3 additional <Term term="neutrons" />.
             </p>
           </motion.div>
 
@@ -75,7 +76,7 @@ const Scene2TextPanel = ({ fissionStarted, showBalance }) => {
             <h4 className="stage-title">Energy Release</h4>
             <p className="stage-text">
               The fragments fly apart at tremendous speeds (≈3% speed of light),
-              releasing ~200 MeV of kinetic energy. This energy manifests as heat, the
+              releasing ~200 <Term term="MeV" /> of kinetic energy. This energy manifests as heat, the
               foundation of nuclear power generation.
             </p>
           </motion.div>
@@ -91,8 +92,8 @@ const Scene2TextPanel = ({ fissionStarted, showBalance }) => {
             >
               <h3 className="explanation-title">Einstein's E=mc²</h3>
               <p className="explanation-text">
-                The total mass of fission products is slightly less than the original
-                U-235 + neutron. This "missing mass" (≈0.186 atomic mass units) hasn't
+                The total mass of <Term term="fission" /> products is slightly less than the original
+                <Term term="Uranium-235" display="U-235" /> + <Term term="neutrons" display="neutron" />. This "missing mass" (≈0.186 <Term term="atomic mass unit" display="atomic mass units" />) hasn't
                 disappeared, it has been converted into pure energy according to Einstein's
                 famous equation.
               </p>

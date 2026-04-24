@@ -52,17 +52,17 @@ const LIST_ITEMS = [
   {
     Icon: ExpandIcon,
     title: 'Isotopes: The Over-filled Balloon',
-    text: 'Atoms of the same element can have different weights, called isotopes. Most uranium is U-238, which acts like a thick, stable balloon. It absorbs impacts easily. But U-235 is like an over-filled balloon stretched to its absolute limit. One tiny tap from a neutron makes it violently pop (fission).',
+    text: <><Term term="isotope" display="Isotopes" /> are atoms of the same element with different numbers of <Term term="neutrons" />. Most uranium is <Term term="Uranium-238" display="U-238" />, which acts like a thick, stable balloon. But <Term term="Uranium-235" display="U-235" /> is stretched to its absolute limit — one tiny tap from a <Term term="neutrons" display="neutron" /> makes it violently pop (<Term term="fission" />).</>,
   },
   {
     Icon: FilterIcon,
     title: 'Enrichment: Filtering the Sand',
-    text: 'Natural uranium from the ground is 99.3% stable U-238 (\u2018sand\u2019) and only 0.7% unstable U-235 (\u2018gold\u2019). To build a power plant, we must filter out some of the sand to increase the amount of U-235 to about 4%. This filtering process is called Enrichment.',
+    text: <>Natural uranium is 99.3% stable <Term term="Uranium-238" display="U-238" /> (‘sand’) and only 0.7% unstable <Term term="Uranium-235" display="U-235" /> (‘gold’). To build a power plant, we must raise the <Term term="Uranium-235" display="U-235" /> share to ~4%. This filtering process is called Enrichment.</>,
   },
   {
     Icon: AtomIcon,
     title: 'The Physics of the Split',
-    text: 'Inside the U-235 nucleus, an incredible tension exists between the Strong Nuclear Force (the glue holding it together) and Electrostatic Repulsion (protons pushing apart). Adding just one neutron destroys this delicate balance.',
+    text: <>Inside the <Term term="Uranium-235" display="U-235" /> nucleus, an incredible tension exists between the Strong Nuclear Force (the glue holding it together) and Electrostatic Repulsion (<Term term="protons" /> pushing apart). Adding just one <Term term="neutrons" display="neutron" /> destroys this delicate balance.</>,
   },
 ];
 

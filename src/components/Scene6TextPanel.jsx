@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import RealWorldOverlay from './RealWorldOverlay';
+import Term from './Term';
 import './Scene6TextPanel.css';
 
 const OVERLAYS = {
@@ -57,8 +58,8 @@ const Scene6TextPanel = () => {
             <div>
               <span className="s6-step-title">Cooling Pool</span>
               <p className="s6-step-text">
-                Fresh spent fuel goes straight into deep pools of water. The water absorbs heat and
-                radiation while producing the iconic blue <strong>Cherenkov glow</strong>, particles
+                Fresh <Term term="spent fuel" /> goes straight into deep pools of water. The water absorbs heat and
+                radiation while producing the iconic blue <strong><Term term="Cherenkov" display="Cherenkov glow" /></strong>, particles
                 moving faster than light <em>in water</em>.
               </p>
             </div>
@@ -90,8 +91,8 @@ const Scene6TextPanel = () => {
             <div>
               <span className="s6-step-title">Closing the Loop</span>
               <p className="s6-step-text">
-                ~90% of spent fuel is recyclable uranium &amp; plutonium. Reprocessing extracts it as
-                fresh MOX fuel. Only ~10% becomes true high-level waste, vitrified into stable glass.
+                ~90% of <Term term="spent fuel" /> is recyclable uranium &amp; plutonium. Reprocessing extracts it as
+                fresh <Term term="MOX" /> fuel. Only ~10% becomes true high-level waste, vitrified into stable glass.
               </p>
             </div>
           </motion.div>

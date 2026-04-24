@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Term from './Term';
 import './BalanceScale.css';
 
 const BalanceScale = () => {
@@ -119,7 +120,7 @@ const BalanceScale = () => {
                     <span className="dmb-num-red">0.186 u</span>
                   </div>
                   <p className="dmb-step-text">
-                    An <em>atomic mass unit</em> (u) is just a tiny unit of weight for atoms.
+                    An <Term term="atomic mass unit" display="atomic mass unit" /> (u) is just a tiny unit of weight for atoms.
                     <span className="dmb-num-red"> 0.186 u</span> of physical matter has vanished from the products.
                   </p>
                 </div>
@@ -134,7 +135,7 @@ const BalanceScale = () => {
                   <p className="dmb-step-text">
                     Because E = mc², nature has a strict exchange rate between mass and energy.
                     Every single unit of mass (u) converts to exactly
-                    <span className="dmb-num-gold"> 931.5 MeV</span> of energy, no exceptions.
+                    <span className="dmb-num-gold"> 931.5 <Term term="MeV" /></span> of energy, no exceptions.
                   </p>
                 </div>
 
@@ -150,7 +151,7 @@ const BalanceScale = () => {
                   </div>
                   <p className="dmb-step-text">
                     Multiply the missing mass by the exchange rate and you get the energy released, 
-                    <span className="dmb-num-orange"> 173.2 MeV</span> of heat from a single fission event.
+                    <span className="dmb-num-orange"> 173.2 <Term term="MeV" /></span> of heat from a single fission event.
                   </p>
                 </div>
 

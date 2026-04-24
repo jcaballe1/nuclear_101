@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RealWorldOverlay from './RealWorldOverlay';
+import Term from './Term';
 import './Scene5TextPanel.css';
 
 const Scene5TextPanel = () => {
@@ -35,8 +36,8 @@ const Scene5TextPanel = () => {
           <div className="s5-rad-card s5-alpha">
             <div className="s5-rad-symbol">α</div>
             <div className="s5-rad-body">
-              <strong className="s5-rad-name">Alpha Particles</strong>
-              <p className="s5-rad-text">Heavy, slow clusters (2 protons + 2 neutrons). Because they are bulky, they crash immediately and are stopped by a simple <strong>sheet of paper</strong> or dead skin.</p>
+              <strong className="s5-rad-name"><Term term="alpha particle" display="Alpha Particles" /></strong>
+              <p className="s5-rad-text">Heavy, slow clusters (2 <Term term="protons" /> + 2 <Term term="neutrons" />). Because they are bulky, they crash immediately and are stopped by a simple <strong>sheet of paper</strong> or dead skin.</p>
             </div>
           </div>
 
@@ -44,7 +45,7 @@ const Scene5TextPanel = () => {
           <div className="s5-rad-card s5-beta">
             <div className="s5-rad-symbol">β</div>
             <div className="s5-rad-body">
-              <strong className="s5-rad-name">Beta Particles</strong>
+              <strong className="s5-rad-name"><Term term="beta particle" display="Beta Particles" /></strong>
               <p className="s5-rad-text">Fast, lightweight electrons. They pass through paper but are easily stopped by a thin layer of <strong>acrylic, glass, or plastic</strong>.</p>
             </div>
           </div>
@@ -53,7 +54,7 @@ const Scene5TextPanel = () => {
           <div className="s5-rad-card s5-gamma">
             <div className="s5-rad-symbol">γ</div>
             <div className="s5-rad-body">
-              <strong className="s5-rad-name">Gamma Rays</strong>
+              <strong className="s5-rad-name"><Term term="gamma rays" display="Gamma Rays" /></strong>
               <p className="s5-rad-text">Pure, high-energy electromagnetic waves. Highly penetrating, requiring thick, dense walls of <strong>lead or concrete</strong> to catch and absorb the energy.</p>
             </div>
           </div>
@@ -66,7 +67,7 @@ const Scene5TextPanel = () => {
             An <strong>unstable nucleus</strong> carries more internal energy than
             a more tightly-bound configuration would. Sooner or later it sheds that
             excess by emitting an &alpha;, &beta; or &gamma; particle and rearranging
-            into a more stable nucleus.
+            into a more stable nucleus via <Term term="decay" />.
           </p>
           <p className="s5-decay-text">
             The crucial point: decay is <strong>spontaneous and probabilistic</strong>.
@@ -77,7 +78,7 @@ const Scene5TextPanel = () => {
           <div className="s5-decay-halflife">
             <div className="s5-decay-hl-icon">T<sub>½</sub></div>
             <p className="s5-decay-hl-text">
-              The <strong>half-life</strong> is the time after which, on average,
+              The <strong><Term term="half-life" display="half-life" /></strong> is the time after which, on average,
               <em> half</em> of any sample has decayed. After two half-lives, a
               quarter remains; after ten, less than 0.1%. The same simple law
               governs medical isotopes (hours–days), spent fuel (decades–centuries)
