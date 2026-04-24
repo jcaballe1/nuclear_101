@@ -184,3 +184,11 @@
   color: #475569;
   margin: 0;
 }
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .scene6-text-panel { max-height: none; }
+}
+@media (max-width: 600px) {
+  .scene6-text-panel { padding: 1rem 1rem 0.75rem; }
+}

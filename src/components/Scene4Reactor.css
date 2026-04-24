@@ -94,3 +94,22 @@
   opacity: 0.85;
   font-style: italic;
 }
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .s4-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    overflow-y: auto;
+  }
+  .s4-left, .s4-right { overflow: visible; }
+  .s4-right { min-height: 320px; }
+}
+
+@media (max-width: 600px) {
+  .s4-main { padding: 0.75rem; gap: 0.5rem; }
+  .s4-right { min-height: 260px; }
+  /* Tab strip wraps on narrow screens */
+  .s4-type-tabs { flex-wrap: wrap; }
+  .s4-type-tab { flex: 1 1 80px; }
+}

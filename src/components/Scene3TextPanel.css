@@ -236,3 +236,11 @@
   line-height: 1.55;
   margin: 0;
 }
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .scene3-text-panel { max-height: none; padding: 1.25rem; }
+}
+@media (max-width: 600px) {
+  .scene3-text-panel { padding: 1rem; }
+}

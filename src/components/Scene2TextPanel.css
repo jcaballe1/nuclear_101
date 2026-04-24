@@ -153,3 +153,15 @@
 .key-insight strong {
   color: #1d4ed8;
 }
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Replace explicit height: 100% with auto so it sizes to content when stacked */
+  .scene2-text-panel {
+    height: auto;
+    max-height: none;
+  }
+}
+@media (max-width: 600px) {
+  .scene2-text-panel { padding: 1rem; }
+}

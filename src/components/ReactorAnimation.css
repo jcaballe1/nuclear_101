@@ -103,3 +103,22 @@
 .reactor-animation-container { display: contents; }
 .reactor-svg { display: contents; }
 
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .ra-wrap {
+    min-height: 320px;
+    height: auto;
+  }
+  .ra-svg {
+    width: 100%;
+    height: auto;
+    min-height: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .ra-wrap { min-height: 260px; }
+  .ra-svg  { min-height: 200px; }
+  .ra-slider-bar { padding: 0.4rem 0.6rem; gap: 0.5rem; }
+}
+

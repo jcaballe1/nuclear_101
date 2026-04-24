@@ -300,3 +300,17 @@
   font-style: italic;
   text-align: right;
 }
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Scene5 text panel has flex: 0 0 320px — remove fixed width when stacked */
+  .scene5-text-panel {
+    flex: none !important;
+    width: 100% !important;
+    max-height: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .scene5-text-panel { padding: 1rem; }
+}

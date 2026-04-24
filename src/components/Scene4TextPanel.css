@@ -282,3 +282,11 @@
 .s4-jt-text strong {
   color: #c2410c;
 }
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .scene4-text-panel { max-height: none; padding: 1.25rem; }
+}
+@media (max-width: 600px) {
+  .scene4-text-panel { padding: 1rem; }
+}

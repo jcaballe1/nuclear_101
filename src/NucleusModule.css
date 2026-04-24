@@ -287,6 +287,10 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
 
 /* ═══ RESPONSIVE ══════════════════════════════════════════════ */
 @media (max-width: 900px) {
+  /* Hide stepper labels to prevent header overflow */
+  .nm-step-lbl { display: none; }
+
+  /* Scene 1 two-col grid → single column */
   .nm-two-col { 
     grid-template-columns: 1fr; 
     grid-template-rows: auto 1fr;
@@ -296,25 +300,32 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
   .nm-two-col > * {
     overflow: visible;
   }
-}
 
-@media (max-width: 600px) {
-  .nm-step-lbl { display: none; }
-  .nm-brand-name { display: none; }
-  
-  .nm-stepper-desktop { display: none; }
-  .nm-stepper-mobile { display: block; width: 100%; text-align: right; }
-  
-  .nm-header {
-    padding: 0 0.75rem;
-    gap: 1rem;
-  }
+  /* Allow stacked scenes to scroll within the main area */
   .nm-scene {
     overflow-y: auto;
   }
   .nm-scene > div {
     height: auto !important;
     min-height: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Collapse stepper entirely to the mobile dropdown chip */
+  .nm-stepper-desktop { display: none; }
+  .nm-stepper-mobile { display: block; width: 100%; text-align: right; }
+  .nm-brand-name { display: none; }
+
+  .nm-header {
+    padding: 0 0.75rem;
+    gap: 1rem;
+  }
+
+  /* Footer — compress nav buttons */
+  .nm-btn-next, .nm-btn-ghost {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
   }
 }
 
