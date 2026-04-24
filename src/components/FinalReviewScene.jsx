@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Quiz from './Quiz';
 import './FinalReviewScene.css';
 
 const CYCLE = [
@@ -43,6 +44,7 @@ const KEY_STATS = [
 
 const FinalReviewScene = ({ completedScenes = new Set(), visitedScenes = new Set(), onRestart }) => {
   const [visible, setVisible] = useState([]);
+  const [showQuiz, setShowQuiz] = useState(false);
   const score = completedScenes.size;
   const visitedOnlyCount = [...visitedScenes].filter(id => !completedScenes.has(id)).length;
   const allDone = score >= 6;
@@ -52,6 +54,14 @@ const FinalReviewScene = ({ completedScenes = new Set(), visitedScenes = new Set
       setTimeout(() => setVisible(prev => [...prev, c.id]), 180 + i * 200);
     });
   }, []);
+
+  if (showQuiz) {
+    return (
+      <div className="fr-root">
+        <Quiz onComplete={() => setShowQuiz(false)} />
+      </div>
+    );
+  }
 
   return (
     <div className="fr-root">
@@ -167,6 +177,9 @@ const FinalReviewScene = ({ completedScenes = new Set(), visitedScenes = new Set
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 2.0 }}
       >
+        <button className="fr-btn-quiz" onClick={() => setShowQuiz(true)}>
+          ✓ Test Yourself
+        </button>
         <button className="fr-btn-restart" onClick={onRestart}>
           ↺ Restart Journey
         </button>
