@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Particle from './Particle';
 import './NucleusVisualization.css';
+import './NucleusVisualization3D.css';
+
+// Lazy-load the 3D variant so three.js only ships when the user opts in
+const NucleusVisualization3D = lazy(() => import('./NucleusVisualization3D'));
 
 // ── MiniFissionBurst ──────────────────────────────────────────────────────
 // Self-contained 1.4 s fission burst rendered as SVG children.
@@ -74,6 +78,7 @@ const MiniFissionBurst = ({ particles }) => {
 
 const NucleusVisualization = ({ isotopeType, setIsotopeType, onAddNeutron, showFission }) => {
   const [incomingNeutron, setIncomingNeutron] = useState(false);
+  const [viewMode, setViewMode] = useState('2d'); // '2d' | '3d'
   // Increments each time showFission transitions to true so MiniFissionBurst
   // gets a new key and replays from scratch on every Add Neutron click.
   const [burstId, setBurstId] = useState(0);
@@ -239,7 +244,7 @@ const NucleusVisualization = ({ isotopeType, setIsotopeType, onAddNeutron, showF
         </div>
 
         <AnimatePresence>
-          {isotopeType === 'unstable' && (
+          {isotopeType === 'unstable' && viewMode === '2d' && (
             <motion.button
               className="add-neutron-btn"
               onClick={handleAddNeutronClick}
@@ -255,6 +260,22 @@ const NucleusVisualization = ({ isotopeType, setIsotopeType, onAddNeutron, showF
             </motion.button>
           )}
         </AnimatePresence>
+
+        {/* 2D / 3D mode toggle */}
+        <div className="viz-mode-toggle" role="group" aria-label="Visualisation mode">
+          <button
+            type="button"
+            className={viewMode === '2d' ? 'active' : ''}
+            onClick={() => setViewMode('2d')}
+            aria-pressed={viewMode === '2d'}
+          >2D</button>
+          <button
+            type="button"
+            className={viewMode === '3d' ? 'active' : ''}
+            onClick={() => setViewMode('3d')}
+            aria-pressed={viewMode === '3d'}
+          >3D</button>
+        </div>
       </div>
 
       {/* Legend Bar — sits outside the SVG canvas */}
@@ -278,6 +299,15 @@ const NucleusVisualization = ({ isotopeType, setIsotopeType, onAddNeutron, showF
       </div>
 
       <div className="visualization-container">
+        {viewMode === '3d' ? (
+          <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>Loading 3D view…</div>}>
+            <NucleusVisualization3D
+              protons={config.protons}
+              neutrons={config.neutrons}
+              vibration={config.vibration}
+            />
+          </Suspense>
+        ) : (
         <svg className="nucleus-svg" viewBox="-400 -400 800 800" role="img" aria-label="Nucleus visualization">
           <title>Cluster of protons and neutrons in an atomic nucleus</title>
           {/* Strong Nuclear Force Glow */}
@@ -392,6 +422,7 @@ const NucleusVisualization = ({ isotopeType, setIsotopeType, onAddNeutron, showF
           {/* Fission Burst — key changes on each trigger, always runs 1.4 s to completion */}
           {burstId > 0 && <MiniFissionBurst key={burstId} particles={particles} />}
         </svg>
+        )}
 
         {/* Stats Display */}
         <div className="stats-display">
