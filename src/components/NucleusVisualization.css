@@ -49,7 +49,6 @@
 .toggle-btn:hover {
   background: #fff;
   border-color: #1a1a1a;
-  transform: translateY(-1px);
 }
 
 .toggle-btn.active {
@@ -82,14 +81,11 @@
 
 .add-neutron-btn:hover:not(:disabled) {
   background: #b8904d;
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px 0px #0f172a;
 }
 
 .add-neutron-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
 }
 
 .btn-icon {

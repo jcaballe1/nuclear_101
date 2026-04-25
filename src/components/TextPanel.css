@@ -2,13 +2,13 @@
   position: relative;
   background: #ffffff;
   border-radius: 12px;
-  padding: 1.75rem;
+  padding: 1.25rem;
   border: 2px solid #1a1a1a;
   box-shadow: 4px 4px 0px 0px #0f172a;
   overflow-y: auto;
   max-height: 100%;
   scrollbar-width: thin;
-  scrollbar-color: rgba(100, 116, 139, 0.3) rgba(241, 245, 249, 0.5);
+  scrollbar-color: rgba(100, 116, 139, 0.4) rgba(241, 245, 249, 0.5);
 }
 
 .text-panel::-webkit-scrollbar {
@@ -56,16 +56,15 @@
 
 .section {
   background: #F9F8F4;
-  padding: 1.25rem;
+  padding: 1rem 1.1rem;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
-  transition: all 0.3s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .section:hover {
   border-color: #C5A059;
   background: #fff;
-  transform: translateX(3px);
 }
 
 .section-heading {

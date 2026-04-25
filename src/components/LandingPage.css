@@ -366,6 +366,25 @@
   background: #333;
 }
 
+.lp-resume-btn {
+  background: #C5A059;
+  color: #1a1a1a;
+  border: 2px solid #1a1a1a;
+  border-radius: 10px;
+  padding: 0.7rem 2rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: 'Inter', system-ui, sans-serif;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px 0px #0f172a;
+  transition: background 0.15s ease;
+  letter-spacing: 0.01em;
+}
+
+.lp-resume-btn:hover {
+  background: #b8904d;
+}
+
 .lp-cta-note {
   font-size: 0.75rem;
   color: #94a3b8;

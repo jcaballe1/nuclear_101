@@ -75,7 +75,7 @@ const item = {
   show:   { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] } },
 };
 
-const LandingPage = ({ onStart }) => (
+const LandingPage = ({ onStart, onResume, savedScene }) => (
   <div className="lp-root">
     {/* ── BRAND BAR ── */}
     <div className="lp-brand">
@@ -158,14 +158,20 @@ const LandingPage = ({ onStart }) => (
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.55, duration: 0.4 }}
     >
-      <motion.button
+      <button
         className="lp-start-btn"
         onClick={onStart}
-        whileHover={{ x: -2, y: -2, boxShadow: '6px 6px 0px 0px #0f172a' }}
-        whileTap={{ scale: 0.97 }}
       >
-        Begin Module →
-      </motion.button>
+        {savedScene && savedScene > 1 ? 'Start Over' : 'Begin Module →'}
+      </button>
+      {savedScene && savedScene > 1 && onResume && (
+        <button
+          className="lp-resume-btn"
+          onClick={onResume}
+        >
+          Continue from Step {savedScene} →
+        </button>
+      )}
       <p className="lp-cta-note">
         You can revisit any scene at any time using the navigation bar.
       </p>

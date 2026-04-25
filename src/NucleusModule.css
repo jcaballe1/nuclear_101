@@ -14,8 +14,8 @@
   --c-dark:       #1a1a1a;
   --shadow-hard:    4px 4px 0px 0px #0f172a;
   --shadow-hard-sm: 2px 2px 0px 0px #0f172a;
-  --hdr-h: 64px;
-  --ftr-h: 52px;
+  --hdr-h: 56px;
+  --ftr-h: 48px;
   --r:     12px;
 }
 
@@ -23,7 +23,10 @@
 *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 .nm-root {
-  width: 100%; height: 100vh;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  height: 100vh;
   display: grid;
   grid-template-rows: var(--hdr-h) 1fr var(--ftr-h);
   background: var(--c-bg);
@@ -31,6 +34,13 @@
   color: var(--c-text);
   overflow: hidden;
   position: relative;
+  border-left: 1px solid var(--c-border);
+  border-right: 1px solid var(--c-border);
+}
+
+/* Page background outside the centred shell */
+html, body {
+  background: #ECEAE1;
 }
 
 /* Landing page covers the whole shell */
@@ -111,9 +121,7 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
   display: flex; flex-direction: column; align-items: center;
   gap: 3px; background: none; border: none;
   cursor: pointer; padding: 4px 6px; flex-shrink: 0;
-  transition: transform 0.15s;
 }
-.nm-step:hover { transform: translateY(-1px); }
 
 .nm-step-dot {
   width: 28px; height: 28px; border-radius: 50%;
@@ -166,7 +174,7 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
 .nm-two-col {
   display: grid;
   grid-template-columns: 42% 58%;
-  gap: 1.5rem; padding: 1.5rem;
+  gap: 1rem; padding: 1rem;
   height: 100%; overflow: hidden;
   align-items: stretch;
   box-sizing: border-box;
@@ -175,6 +183,7 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
 
 .nm-two-col > * {
   min-width: 0;
+  min-height: 0;        /* critical: lets grid children honour their inner overflow:auto */
   overflow: hidden;
 }
 
@@ -225,15 +234,9 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
   padding: 0.45rem 1.2rem;
   font-size: 0.88rem; font-weight: 700; color: #fff;
   cursor: pointer; font-family: inherit;
-  box-shadow: var(--shadow-hard-sm);
-  animation: nextGlow 2.2s ease-in-out infinite;
-  transition: background 0.2s, transform 0.15s;
+  transition: background 0.15s ease;
 }
 .nm-btn-next:hover { background: #333; }
-@keyframes nextGlow {
-  0%,100% { box-shadow: var(--shadow-hard-sm); }
-  50%      { box-shadow: var(--shadow-hard), 0 0 0 3px rgba(197,160,89,0.25); }
-}
 
 .nm-btn-skip {
   background: none; border: 1.5px solid var(--c-border);

@@ -54,7 +54,10 @@ const SceneWrap = ({ id, dir, children }) => (
 );
 
 const NucleusModule = () => {
-  const [landing, setLanding]     = useState(() => { const s = loadProgress(); return s ? !s.landingSeen : true; });
+  // Always show the landing page on mount/refresh — even if the user has prior progress.
+  // Saved scene/done are still rehydrated so the user can resume from the same step
+  // by clicking "Begin" on the landing page.
+  const [landing, setLanding]     = useState(true);
   const [scene, setScene]         = useState(() => { const s = loadProgress(); return s?.scene ?? 1; });
   const [dir,   setDir]           = useState(1);
   const [done,  setDone]          = useState(() => { const s = loadProgress(); return s?.done ? new Set(s.done) : new Set(); });
@@ -155,7 +158,11 @@ const NucleusModule = () => {
             exit={{ opacity: 0, y: -24 }}
             transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
           >
-            <LandingPage onStart={() => setLanding(false)} />
+            <LandingPage
+              onStart={() => { setScene(1); setDone(new Set()); setVisited(new Set()); setLanding(false); }}
+              onResume={() => setLanding(false)}
+              savedScene={scene}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -303,14 +310,12 @@ const NucleusModule = () => {
           )}
           {scene < 7 && (
             <div className="nm-next-group">
-              <motion.button
+              <button
                 className="nm-btn-next"
                 onClick={() => go(scene + 1)}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
               >
                 {scene === 6 ? '★ Final Review' : 'Next →'}
-              </motion.button>
+              </button>
               <AnimatePresence>
                 {!isComplete && (
                   <motion.button

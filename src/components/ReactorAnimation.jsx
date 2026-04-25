@@ -578,24 +578,24 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
             fontWeight="700" letterSpacing="0.6">FEEDWATER PUMP</text>
         </g>
 
-        {/* ── COOLING TOWER ──────────────────────── */}
+        {/* ── COOLING TOWER (placed under the generator on the right) ─── */}
         <motion.path
-          d="M 238 310 L 264 88 Q 300 132 336 88 L 362 310 Z"
+          d="M 418 310 L 444 88 Q 480 132 516 88 L 542 310 Z"
           fill="url(#ra-tower-grad)" stroke="#0e7490" strokeWidth="2"
           animate={{ opacity: 0.35 + p * 0.6 }}/>
-        <motion.ellipse cx="300" cy="88" rx="36" ry="9"
+        <motion.ellipse cx="480" cy="88" rx="36" ry="9"
           fill="#0e7490" stroke="#22d3ee" strokeWidth="1"
           animate={{ opacity: 0.35 + p * 0.5 }}/>
         {/* Vapor puffs */}
         {towerVapor.map(v => (
-          <motion.circle key={v.id} cx={v.x} cy={88} r={8 + p * 5}
+          <motion.circle key={v.id} cx={v.x + 180} cy={88} r={8 + p * 5}
             fill="#bae6fd" fillOpacity={0.4 + p * 0.35}
             initial={{ y: 0, opacity: 0.6, scale: 1 }}
             animate={{ y: -160, opacity: 0, scale: 3 + p }}
             transition={{ duration: 2.8 - p * 0.8, ease: 'easeOut' }}
           />
         ))}
-        <text x="300" y="280" fontSize="12" fill="#67e8f9" textAnchor="middle"
+        <text x="480" y="280" fontSize="12" fill="#67e8f9" textAnchor="middle"
           fontWeight="600" letterSpacing="0.5" opacity={0.35 + p * 0.65}>
           COOLING TOWER
         </text>
@@ -605,20 +605,20 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
             to the atmosphere in the tower, then is pumped back. Never
             touches the radioactive primary water.
         ──────────────────────────────────────────────── */}
-        {/* Warm water out (condenser → top of cooling tower) */}
+        {/* Warm water out (condenser top-right → over the top → tower top inlet) */}
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M 360 30 L 410 30 L 410 140 L 340 140"
+            d="M 360 20 L 400 20 L 400 60 L 480 60 L 480 88"
             stroke="#0891b2"
             strokeWidth={14}
             dashLen={18} gapLen={16}
             duration={waterSpeed}
           />
         </g>
-        {/* Cool water return (tower base → tertiary pump → condenser) */}
+        {/* Cool water return (tower base → around the bottom → pump → condenser bottom) */}
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M 240 290 L 180 290 L 180 65 L 200 65"
+            d="M 480 310 L 480 335 L 280 335 L 280 80"
             stroke="#1d4ed8"
             strokeWidth={14}
             dashLen={18} gapLen={16}
@@ -626,25 +626,23 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
             sheen
           />
         </g>
-        {/* Tertiary circulating pump */}
+        {/* Tertiary circulating pump (on the cool-return leg, beneath the condenser) */}
         <g opacity={0.5 + p * 0.5}>
-          <circle cx="180" cy="185" r="15"
+          <circle cx="380" cy="335" r="12"
             fill="#1e40af" stroke="#60a5fa" strokeWidth="2"/>
           <motion.g
-            style={{ transformOrigin: '180px 185px' }}
+            style={{ transformOrigin: '380px 335px' }}
             animate={{ rotate: p < 0.02 ? 0 : 360 }}
             transition={{ duration: lerp(6, 0.5, p), repeat: Infinity, ease: 'linear' }}
           >
             {[0, 90, 180, 270].map(deg => (
               <line key={`tpb-${deg}`}
-                x1="180" y1="185"
-                x2={180 + Math.cos(deg * Math.PI / 180) * 10}
-                y2={185 + Math.sin(deg * Math.PI / 180) * 10}
+                x1="380" y1="335"
+                x2={380 + Math.cos(deg * Math.PI / 180) * 8}
+                y2={335 + Math.sin(deg * Math.PI / 180) * 8}
                 stroke="#bfdbfe" strokeWidth="2" strokeLinecap="round"/>
             ))}
           </motion.g>
-          <text x="180" y="214" fontSize="9" fill="#93c5fd" textAnchor="middle"
-            fontWeight="700" letterSpacing="0.6">CIRC. PUMP</text>
         </g>
 
         {/* ── SMR INTEGRAL VESSEL OVERLAY + MODULAR BADGE ──
