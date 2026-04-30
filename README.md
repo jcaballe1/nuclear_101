@@ -50,18 +50,56 @@ An interactive educational module exploring the fundamentals of nuclear physics,
   - Supercritical: Rods raised, runaway reaction
 - **Live Feedback**: Real-time statistics showing fission count and active neutrons
 
+### Scene 4: Nuclear Power Plant
+- **Three Reactor Types**: Switch between PWR (Pressurised Water), BWR (Boiling Water), and SMR (Small Modular) reactor architectures
+- **Full Plant Schematic**: Animated cross-section showing all major loops:
+  - Primary loop (PWR/SMR): reactor core → pressuriser → steam generator → primary pump
+  - Secondary loop: steam generator / reactor → turbine → generator → condenser
+  - Tertiary loop: condenser → cooling tower → circulating pump
+- **Live Reactor Animation**:
+  - Reactor core glow and heat puffs scale with power level
+  - Control rods animate into/out of the core
+  - All pumps spin at realistic speed relative to power
+  - Turbine blades and generator salient-pole rotor spin on correct axes
+  - Animated flow in every pipe (dash-offset, colour-coded by temperature)
+  - Steam generator rising bubbles on the secondary side
+  - Cooling tower rising vapour bubbles at the rim
+- **Power Slider**: Drag to set reactor output 0–100%; all animation speeds, glows, and readouts update in real time
+- **Control Dashboard** (sidebar panel):
+  - Live thermal output (MWt)
+  - Live electrical output (MWe) at 33% thermal efficiency / 220 kV AC
+  - Reactor power percentage with colour-coded indicator
+  - Grid output in MW
+- **SMR Overlay**: Dashed integral-vessel boundary and "MODULAR" badge shown when SMR is selected
+- **Reactor-type badges**: BWR shows direct-steam path; SMR natural-circulation loop (no primary pump)
+
 ### General Features
-- **Scene Navigation**: Toggle between Scene 1, Scene 2, and Scene 3
+- **Scene Navigation**: Toggle between Scenes 1–4
 - **Smooth Transitions**: Framer-motion animations between scenes
 - **Undergraduate-Level Content**: Scientific accuracy with accessible explanations
-- **Responsive Design**: Works on desktop and tablet devices
+- **Responsive Design**: Works on desktop and tablet devices; dashboard reflows below SVG on narrow screens
 
 ## Technology Stack
 
 - **React 18**: Component-based UI framework
 - **Framer Motion**: Advanced animations and transitions
+- **Three.js / React Three Fiber**: 3D nucleus visualisation (Scene 1)
 - **Vite**: Fast build tool and development server
 - **CSS3**: Custom styling with gradients and effects
+
+## Deployment
+
+The app is deployed to GitHub Pages at: https://jcaballe1.github.io/nuclear_101
+
+To redeploy after changes:
+```bash
+npm run build
+cd dist
+git add -A
+git commit -m "Update deployment"
+git push -f https://github.com/jcaballe1/nuclear_101.git master:gh-pages
+cd ..
+```
 
 ## Installation
 
