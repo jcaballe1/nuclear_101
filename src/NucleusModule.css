@@ -15,7 +15,7 @@
   --shadow-hard:    4px 4px 0px 0px #0f172a;
   --shadow-hard-sm: 2px 2px 0px 0px #0f172a;
   --hdr-h: 56px;
-  --ftr-h: 48px;
+  --ftr-h: 64px;
   --r:     12px;
 }
 
@@ -170,11 +170,11 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
   position: absolute; inset: 0; overflow: hidden;
 }
 
-/* Standard two-column grid used by Scene 1 and wrappers */
+/* Standard two-column grid used by Scene 1 */
 .nm-two-col {
   display: grid;
-  grid-template-columns: 42% 58%;
-  gap: 1rem; padding: 1rem;
+  grid-template-columns: 38% 62%;
+  gap: 1.25rem; padding: 1rem 1.5rem;
   height: 100%; overflow: hidden;
   align-items: stretch;
   box-sizing: border-box;
@@ -184,7 +184,6 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
 .nm-two-col > * {
   min-width: 0;
   min-height: 0;        /* critical: lets grid children honour their inner overflow:auto */
-  overflow: hidden;
 }
 
 /* ═══ FOOTER ══════════════════════════════════════════════════ */
@@ -346,11 +345,11 @@ h1, h2, h3, .nm-brand-name, .isotope-title, .panel-title,
 .scene5-content,
 .scene6-content {
   display: grid !important;
-  grid-template-columns: 42% 58% !important;
-  gap: 1.5rem;
+  grid-template-columns: 38% 62% !important;
+  gap: 1.25rem;
   height: 100%;
   width: 100%;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   align-items: stretch;
 }
 

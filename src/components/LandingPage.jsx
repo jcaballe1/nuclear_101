@@ -60,8 +60,8 @@ const BIG_PICTURE = [
 ];
 
 const FISSION_FUSION_ROWS = [
-  { process: 'Fission', summary: <>Splits heavy atoms such as <Term term="Uranium-235" display="uranium-235" /></>, energy: '~80,000,000', carbon: '~12' },
-  { process: 'Fusion', summary: <>Joins light atoms such as hydrogen <Term term="isotope" display="isotopes" /></>, energy: '~120,000,000', carbon: '~4-15 projected' },
+  { process: 'Fission', summary: <>Splits heavy atoms like <Term term="Uranium-235" display="uranium-235" /></>, energy: '~80,000,000', carbon: '~12' },
+  { process: 'Fusion', summary: 'Joins light atoms like hydrogen', energy: '~120,000,000', carbon: '~4-15 projected' },
   { process: 'Coal', summary: 'Burns carbon-rich rock', energy: '~24', carbon: '~820' },
   { process: 'Natural Gas', summary: 'Burns methane', energy: '~55', carbon: '~490' },
 ];
@@ -83,60 +83,17 @@ const LandingPage = ({ onStart, onResume, savedScene }) => (
       <span className="lp-brand-name">Nuclear Energy 101</span>
     </div>
 
-    {/* ── HERO ── */}
-    <motion.section
-      className="lp-hero"
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-    >
-      <div className="lp-tags">
-        <span className="lp-tag">6 interactive scenes</span>
-        <span className="lp-tag">~15 minutes</span>
-        <span className="lp-tag">No prior knowledge required</span>
-      </div>
-
-      <h1 className="lp-title">
-        How does a nuclear<br />power plant actually work?
-      </h1>
-
-      <p className="lp-subtitle">
-        Nuclear power drives today's energy debate. Here's the core physics, from the atom to the grid.
-      </p>
-    </motion.section>
-
     {/* ── BIG PICTURE CONTEXT ── */}
     <motion.section
       className="lp-bigpicture-section"
       variants={container}
-      initial="hidden"
-      animate="show"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
     >
       <motion.div className="lp-bigpicture-header" variants={item}>
-        <span className="lp-bigpicture-label">Big Picture Context</span>
+        <span className="lp-bigpicture-label">The Big Picture</span>
         <h2 className="lp-bigpicture-title">Why does nuclear energy matter?</h2>
-      </motion.div>
-      <motion.div className="lp-compare-panel" variants={item}>
-        <p className="lp-compare-text">
-          <strong>Fission</strong> is the process used in nuclear power plants today: a large atom splits and releases heat.
-          <strong> Fusion</strong> is the opposite: tiny atoms join together, like in the Sun. Both are nuclear reactions, but only fission is commercially mature today.
-        </p>
-        <div className="lp-compare-table" role="table" aria-label="Fission, fusion, and fossil fuel comparison table">
-          <div className="lp-compare-head" role="rowgroup">
-            <span role="columnheader">Process</span>
-            <span role="columnheader">Plain English</span>
-            <span role="columnheader">MJ/kg</span>
-            <span role="columnheader">gCO2e/kWh</span>
-          </div>
-          {FISSION_FUSION_ROWS.map((row) => (
-            <div key={row.process} className="lp-compare-row" role="row">
-              <span className="lp-compare-process" role="cell">{row.process}</span>
-              <span role="cell">{row.summary}</span>
-              <span role="cell">{row.energy}</span>
-              <span role="cell">{row.carbon}</span>
-            </div>
-          ))}
-        </div>
       </motion.div>
       <div className="lp-bigpicture-grid">
         {BIG_PICTURE.map(({ Icon, title, text }, i) => (
@@ -149,6 +106,30 @@ const LandingPage = ({ onStart, onResume, savedScene }) => (
           </motion.div>
         ))}
       </div>
+      <motion.div className="lp-compare-panel" variants={item} style={{ marginTop: '1rem' }}>
+        <p className="lp-compare-text">
+          <strong>Fission</strong> is the process used in today's power plants, where a heavy atom splits apart to release massive amounts of heat.
+        </p>
+        <p className="lp-compare-text">
+          <strong>Fusion</strong> is the opposite: light atoms fuse together, powering stars like our Sun. Both are nuclear reactions, but only fission is ready to power the grid today.
+        </p>
+        <div className="lp-compare-table" role="table" aria-label="Fission, fusion, and fossil fuel comparison table">
+          <div className="lp-compare-head" role="rowgroup">
+            <span role="columnheader">Process</span>
+            <span role="columnheader">In Simple Terms</span>
+            <span role="columnheader">Energy Density (MJ/kg)</span>
+            <span role="columnheader">Carbon Footprint (gCO₂/kWh)</span>
+          </div>
+          {FISSION_FUSION_ROWS.map((row) => (
+            <div key={row.process} className="lp-compare-row" role="row">
+              <span className="lp-compare-process" role="cell">{row.process}</span>
+              <span role="cell">{row.summary}</span>
+              <span role="cell" style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{row.energy}</span>
+              <span role="cell">{row.carbon}</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
     </motion.section>
 
     {/* ── CTA ── */}

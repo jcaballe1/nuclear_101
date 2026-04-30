@@ -28,8 +28,7 @@ const Scene2TextPanel = ({ fissionStarted, showBalance }) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <h3 className="stage-number">Stage 1</h3>
-            <h4 className="stage-title">Neutron Capture</h4>
+            <h4 className="stage-title"><span className="stage-num">1</span> Neutron Capture</h4>
             <p className="stage-text">
               A slow-moving <Term term="neutrons" display="neutron" /> approaches the <Term term="Uranium-235" display="Uranium-235" /> nucleus. The nucleus,
               with 92 <Term term="protons" /> and 143 <Term term="neutrons" />, is already in a delicate state of balance.
@@ -42,8 +41,7 @@ const Scene2TextPanel = ({ fissionStarted, showBalance }) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <h3 className="stage-number">Stage 2</h3>
-            <h4 className="stage-title">Compound Nucleus</h4>
+            <h4 className="stage-title"><span className="stage-num">2</span> Compound Nucleus</h4>
             <p className="stage-text">
               The neutron is absorbed, creating Uranium-236. The extra energy
               causes the nucleus to vibrate violently and elongate like a liquid drop,
@@ -57,8 +55,7 @@ const Scene2TextPanel = ({ fissionStarted, showBalance }) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <h3 className="stage-number">Stage 3</h3>
-            <h4 className="stage-title">Nuclear Fission</h4>
+            <h4 className="stage-title"><span className="stage-num">3</span> Nuclear Fission</h4>
             <p className="stage-text">
               The electrostatic repulsion overcomes the strong nuclear force.
               The nucleus splits into two lighter fragments (typically Krypton-92
@@ -72,8 +69,7 @@ const Scene2TextPanel = ({ fissionStarted, showBalance }) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.8 }}
           >
-            <h3 className="stage-number">Stage 4</h3>
-            <h4 className="stage-title">Energy Release</h4>
+            <h4 className="stage-title"><span className="stage-num">4</span> Energy Release</h4>
             <p className="stage-text">
               The fragments fly apart at tremendous speeds (≈3% speed of light),
               releasing ~200 <Term term="MeV" /> of kinetic energy. This energy manifests as heat, the
@@ -109,9 +105,7 @@ const Scene2TextPanel = ({ fissionStarted, showBalance }) => {
                 </div>
               </div>
               <p className="key-insight">
-                <strong>Key Insight:</strong> Even tiny amounts of mass contain
-                enormous energy. Just 0.186 u releases 173 MeV, enough to power
-                a 100-watt bulb for 31 hours from a single atom!
+                <strong>The Reality Check:</strong> Burning a single atom of carbon (coal or gas) releases about <strong>4 eV</strong> of heat. Splitting a single atom of Uranium releases <strong>200,000,000 eV</strong>. That is 50 million times more energy per atom, which is why one small pellet equals a ton of coal.
               </p>
             </motion.div>
           )}

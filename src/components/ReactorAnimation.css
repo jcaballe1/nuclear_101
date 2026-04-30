@@ -1,9 +1,10 @@
 /* ── Outer wrapper fills the right column ── */
 .ra-wrap {
+  position: relative;
   flex: 1;
   min-height: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;      /* SVG left, dashboard sidebar right */
   background: #080e1c;
   border-radius: 14px;
   border: 1px solid rgba(59,130,246,0.18);
@@ -15,8 +16,8 @@
 /* ── SVG fills available space ── */
 .ra-svg {
   flex: 1;
+  min-width: 0;
   min-height: 0;
-  width: 100%;
   height: 100%;
   display: block;
   overflow: visible;
@@ -27,30 +28,127 @@
   user-select: none;
 }
 
-/* ── Power slider bar at bottom ── */
-.ra-slider-bar {
-  flex-shrink: 0;
+/* ── Unified Control Dashboard — right sidebar, never overlaps SVG ── */
+.ra-dashboard {
+  flex: 0 0 218px;
+  width: 218px;
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.55rem 1rem 0.65rem;
-  background: rgba(15,23,42,0.92);
-  border-top: 1px solid rgba(59,130,246,0.15);
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.75rem 0.8rem;
+  background: rgba(10,18,38,0.98);
+  border-left: 1px solid #1e3a5f;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-y: auto;
 }
 
-.ra-slider-label {
-  font-size: 0.68rem;
+.ra-dash-title {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: #93c5fd;
+  text-align: center;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid #1e3a5f;
+}
+
+.ra-dash-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.ra-dash-mlabel {
+  font-size: 0.6rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.1em;
   color: #64748b;
-  white-space: nowrap;
-  flex-shrink: 0;
 }
 
+.ra-dash-mlabel small {
+  color: #475569;
+  font-size: 0.85em;
+  font-weight: 600;
+  margin-left: 0.15rem;
+}
+
+.ra-dash-mvalue {
+  font-size: 1rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.ra-dash-mvalue em {
+  font-size: 0.6em;
+  font-style: normal;
+  opacity: 0.75;
+  margin-left: 0.1rem;
+  letter-spacing: 0.04em;
+}
+
+.ra-dash-thermal { color: #fcd34d; }
+.ra-dash-elec    {
+  color: #fef08a;
+  text-shadow: 0 0 10px rgba(254,240,138,0.45);
+}
+
+.ra-dash-divider {
+  height: 1px;
+  background: #1e3a5f;
+}
+
+.ra-dash-foot {
+  font-size: 0.58rem;
+  color: #475569;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+.ra-dash-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border-top: 1px solid #1e3a5f;
+  padding-top: 0.55rem;
+}
+
+.ra-dash-slider-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ra-dash-slabel {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #64748b;
+}
+
+.ra-dash-spct {
+  font-size: 0.9rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s;
+}
+
+.ra-dash-mw {
+  font-size: 0.62rem;
+  color: #fcd34d;
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+}
+
+/* ── Slider track + input (shared with dashboard) ── */
 .ra-slider-track {
   position: relative;
-  flex: 1;
+  width: 100%;
   height: 8px;
   border-radius: 4px;
   background: #1e293b;
@@ -80,25 +178,6 @@
   height: 20px;
 }
 
-.ra-slider-pct {
-  font-size: 0.82rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  min-width: 2.6rem;
-  text-align: right;
-  flex-shrink: 0;
-}
-
-.ra-slider-mw {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #fcd34d;
-  min-width: 3.2rem;
-  text-align: right;
-  flex-shrink: 0;
-  font-variant-numeric: tabular-nums;
-}
-
 /* Legacy class alias (kept for safety) */
 .reactor-animation-container { display: contents; }
 .reactor-svg { display: contents; }
@@ -106,14 +185,29 @@
 /* ─── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .ra-wrap {
+    flex-direction: column;
     min-height: 320px;
     height: auto;
   }
   .ra-svg {
+    flex: 1;
     width: 100%;
     height: auto;
     min-height: 260px;
   }
+  .ra-dashboard {
+    flex: 0 0 auto;
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #1e3a5f;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .ra-dash-title { display: none; }
 }
 
 @media (max-width: 600px) {

@@ -44,7 +44,6 @@ const Scene2Fission = ({ onComplete }) => {
               <motion.button
                 className="start-fission-btn"
                 onClick={handleStartFission}
-                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 Initiate Fission
@@ -56,7 +55,6 @@ const Scene2Fission = ({ onComplete }) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.25 }}
-                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <span className="btn-icon">↻</span>

@@ -23,6 +23,18 @@ const WATER_COOLDOWN_MS = 900;  // ms — one molecule can only slow one neutron
 const WOBBLE_MIN = 500;   // ms — delay before a hit nucleus actually splits
 const WOBBLE_MAX = 700;
 
+// Fissioned atoms regenerate as fresh U-235 after this delay so the demo is
+// steady-state instead of running out of fuel in seconds.
+const REGEN_MS = 3500;
+
+// Temperature model:
+//   targetTemp = (recent fissions/sec) * HEAT_PER_FISSION  -  BASE_COOLING
+// Rods cool the reactor implicitly by absorbing neutrons (→ fewer fissions/sec).
+// No separate rod-cooling term — cause flows correctly.
+const HEAT_WINDOW_MS    = 1500;  // sliding window for fission-rate calculation
+const HEAT_PER_FISSION  = 14;    // tunes how hot a single fission/sec runs
+const BASE_COOLING      = 6;     // constant heat sink (coolant flow)
+
 function randomWobble() {
   return WOBBLE_MIN + Math.random() * (WOBBLE_MAX - WOBBLE_MIN);
 }
@@ -54,6 +66,8 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
   // Map<waterMolId, timestamp> — tracks recently-slowed molecules to prevent
   // the same molecule from slowing multiple neutrons within WATER_COOLDOWN_MS
   const waterHitsRef   = useRef(new Map());
+  // Rolling list of fission timestamps for rate-based heat calculation
+  const fissionEventsRef = useRef([]);
   const [tick, setTick] = useState(0);
 
   useEffect(() => { rodPositionRef.current = controlRodPosition; }, [controlRodPosition]);
@@ -65,11 +79,13 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
       nucleiRef.current   = makeNuclei();
       neutronsRef.current = [];
       zapsRef.current     = [];
+      fissionEventsRef.current = [];
       setTick(t => t + 1);
       return;
     }
 
     waterHitsRef.current.clear();
+    fissionEventsRef.current = [];
 
     // seed neutron aimed at vertical mid-row
     neutronsRef.current = [{
@@ -79,6 +95,7 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
       vx: 10,
       vy: 0.25,
       thermalised: false,
+      generation: 0,
     }];
 
     const loop = () => {
@@ -130,6 +147,7 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed,
                 thermalised: false,
+                generation: Math.min((neutron.generation || 0) + 1, 4),
               });
             }
             nuclei[i] = { ...n, state: 'wobbling', wobbleStart: now, wobbleDelay: randomWobble(), pendingNeutrons: pending };
@@ -165,25 +183,35 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
         const n = nuclei[i];
         if (n.state === 'wobbling' && now - n.wobbleStart >= n.wobbleDelay) {
           spawned.push(...n.pendingNeutrons);
-          nuclei[i] = { ...n, state: 'fissioned', pendingNeutrons: [] };
+          fissionEventsRef.current.push(now);
+          nuclei[i] = { ...n, state: 'fissioned', fissionTime: now, pendingNeutrons: [] };
+        }
+        // ── Regenerate fissioned atoms back to fresh U-235 ───────────────────
+        else if (n.state === 'fissioned' && now - (n.fissionTime || 0) >= REGEN_MS) {
+          nuclei[i] = { ...n, state: 'stable', fissionTime: 0, pendingNeutrons: [] };
         }
       }
 
       neutronsRef.current = [...survivors, ...spawned];
       nucleiRef.current   = [...nuclei];
 
-      // ── Temperature / power ───────────────────────────────────────────────
-      // Temperature is a function of cumulative fissions vs rod cooling.
-      // Rod cooling: subtracts up to 85 percentage points at full insertion.
-      const fissionedCount = nucleiRef.current.filter(n => n.state === 'fissioned').length;
-      const rodFraction    = rodPositionRef.current / 100;
-      const rawHeat   = Math.min(100, fissionedCount * 2.2); // 45 fissions = 99%
-      const targetTemp = Math.max(0, rawHeat - rodFraction * 85);
+      // ── Temperature / power ─────────────────────────────────────────────
+      // Heat is driven by the *rate* of ongoing fissions, not by cumulative
+      // count. Rods reduce the rate naturally by absorbing neutrons — no
+      // separate cooling term is needed.
+      fissionEventsRef.current = fissionEventsRef.current.filter(
+        t => now - t < HEAT_WINDOW_MS
+      );
+      const fissionsPerSec = fissionEventsRef.current.length / (HEAT_WINDOW_MS / 1000);
+      const targetTemp = Math.max(
+        0,
+        Math.min(100, fissionsPerSec * HEAT_PER_FISSION - BASE_COOLING)
+      );
 
       onTemperatureChange(prev => {
         const diff = targetTemp - prev;
         // slow rise (observeable ramp); faster fall (responsive control)
-        return prev + diff * (diff > 0 ? 0.008 : 0.022);
+        return prev + diff * (diff > 0 ? 0.004 : 0.015);
       });
 
       setTick(t => t + 1);
@@ -205,10 +233,15 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
   const now = Date.now();
 
   const vib = (seed) => {
-    if (!supercritical) return { dx: 0, dy: 0 };
+    // Continuous heat-driven vibration: amplitude scales with temperature
+    // (quadratic so motion stays near-zero in the cool zone and ramps up
+    // smoothly through critical/supercritical instead of snapping on at 66%).
+    const t = Math.max(0, Math.min(1, (temperature || 0) / 100));
+    const amp = 3.5 * t * t;
+    if (amp < 0.05) return { dx: 0, dy: 0 };
     return {
-      dx: Math.sin(tick * 0.55 + seed) * 3.5,
-      dy: Math.cos(tick * 0.47 + seed) * 3.5,
+      dx: Math.sin(tick * 0.55 + seed) * amp,
+      dy: Math.cos(tick * 0.47 + seed) * amp,
     };
   };
 
@@ -323,27 +356,45 @@ const ChainReactionAnimation = ({ reactionStarted, controlRodPosition, onTempera
           }
 
           if (nucleus.state === 'fissioned') {
+            // Fade fragments out as the atom regenerates
+            const age = (now - (nucleus.fissionTime || now)) / REGEN_MS;
+            const fragOpacity = Math.max(0, 1 - age);
+            const regenOpacity = Math.min(1, Math.max(0, (age - 0.7) / 0.3));
             return (
               <g key={nucleus.id}>
                 <circle cx={nucleus.x - 10} cy={nucleus.y - 7} r="7"
-                  fill="#3b82f6" filter="url(#glowSm)" />
+                  fill="#3b82f6" filter="url(#glowSm)" opacity={fragOpacity} />
                 <circle cx={nucleus.x + 10} cy={nucleus.y + 7} r="7"
-                  fill="#ec4899" filter="url(#glowSm)" />
-                <circle cx={nucleus.x} cy={nucleus.y} r="18"
-                  fill="none" stroke="#fbbf24" strokeWidth="1" opacity="0.15" />
+                  fill="#ec4899" filter="url(#glowSm)" opacity={fragOpacity} />
+                {/* fresh U-235 fading back in for the last 30% of the regen cycle */}
+                {regenOpacity > 0 && (
+                  <>
+                    <circle cx={nucleus.x} cy={nucleus.y} r="22"
+                      fill="url(#nucleusGlow)" opacity={regenOpacity} />
+                    <circle cx={nucleus.x} cy={nucleus.y} r="13"
+                      fill="#7c3aed" stroke="#ddd6fe" strokeWidth="1.5"
+                      filter="url(#glowSm)" opacity={regenOpacity} />
+                  </>
+                )}
               </g>
             );
           }
           return null;
         })}
 
-        {/* ── Neutrons: gold spheres, no labels ── */}
-        {neutrons.map(n => (
-          <circle key={n.id}
-            cx={n.x} cy={n.y} r="6"
-            fill="#fbbf24" stroke="#fef9c3" strokeWidth="1.5"
-            filter="url(#glowSm)" />
-        ))}
+        {/* ── Neutrons: coloured by generation for lineage tracing ── */}
+        {(() => {
+          const GEN_COLORS = ['#fbbf24', '#fb923c', '#f87171', '#c084fc'];
+          return neutrons.map(n => {
+            const fill = GEN_COLORS[Math.min(n.generation || 0, GEN_COLORS.length - 1)];
+            return (
+              <circle key={n.id}
+                cx={n.x} cy={n.y} r="6"
+                fill={fill} stroke="rgba(255,255,255,0.55)" strokeWidth="1.5"
+                filter="url(#glowSm)" />
+            );
+          });
+        })()}
 
         {/* ── Rod absorption zap fizzle ── */}
         {zaps.map(zap => {

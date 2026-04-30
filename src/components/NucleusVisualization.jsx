@@ -252,7 +252,6 @@ const NucleusVisualization = ({ isotopeType, setIsotopeType, onAddNeutron, showF
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               <span className="btn-icon">+</span>

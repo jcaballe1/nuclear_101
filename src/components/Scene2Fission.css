@@ -22,7 +22,7 @@
 .animation-section {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  height: 100%;
   min-height: 0;
   overflow: hidden;
 }
@@ -55,30 +55,20 @@
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  transition: all 0.2s ease;
-  box-shadow: 3px 3px 0px 0px #0f172a;
+  transition: none;
 }
 
-.start-fission-btn:hover,
-.reset-btn:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px 0px #0f172a;
+.reset-btn {
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
 }
 
 .start-fission-btn {
   background: #C5A059;
 }
 
-.start-fission-btn:hover {
-  background: #b8904d;
-}
-
 .reset-btn {
   background: #1a1a1a;
-}
-
-.reset-btn:hover {
-  background: #333;
 }
 
 .btn-icon {

@@ -1,7 +1,6 @@
 ﻿import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import NucleusVisualization from './components/NucleusVisualization';
-import TextPanel from './components/TextPanel';
+import Scene1Nucleus from './components/Scene1Nucleus';
 import Scene2Fission from './components/Scene2Fission';
 import Scene3ChainReaction from './components/Scene3ChainReaction';
 import Scene4Reactor from './components/Scene4Reactor';
@@ -63,9 +62,6 @@ const NucleusModule = () => {
   const [done,  setDone]          = useState(() => { const s = loadProgress(); return s?.done ? new Set(s.done) : new Set(); });
   // 'visited' tracks scenes the user navigated past with Skip (but never interacted with)
   const [visited, setVisited]     = useState(new Set());
-  const [isotopeType, setIsotopeType] = useState('stable');
-  const [showFission, setShowFission] = useState(false);
-
   const markDone = useCallback((id) => {
     setDone(prev => prev.has(id) ? prev : new Set([...prev, id]));
   }, []);
@@ -126,22 +122,6 @@ const NucleusModule = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [scene, landing, go]);
-
-  const handleAddNeutron = () => {
-    if (isotopeType === 'unstable') {
-      setShowFission(true);
-      markDone(1);
-    }
-  };
-
-  const handleFissionDismiss = () => {
-    setShowFission(false);
-  };
-
-  const handleFissionNext = () => {
-    setShowFission(false);
-    go(2);
-  };
 
   const isComplete = done.has(scene) || scene === 7;
 
@@ -223,53 +203,15 @@ const NucleusModule = () => {
       {/* SCENE AREA */}
       <main className="nm-main">
         <AnimatePresence mode="wait" custom={dir}>
-          {scene === 1 && (
-            <SceneWrap id={1} dir={dir}>
-              <div className="nm-two-col">
-                <TextPanel isotopeType={isotopeType} showFission={showFission} onFissionDismiss={handleFissionDismiss} onFissionNext={handleFissionNext} />
-                <NucleusVisualization
-                  isotopeType={isotopeType}
-                  setIsotopeType={setIsotopeType}
-                  onAddNeutron={handleAddNeutron}
-                  showFission={showFission}
-                />
-              </div>
-            </SceneWrap>
-          )}
-          {scene === 2 && (
-            <SceneWrap id={2} dir={dir}>
-              <Scene2Fission onComplete={() => markDone(2)} />
-            </SceneWrap>
-          )}
-          {scene === 3 && (
-            <SceneWrap id={3} dir={dir}>
-              <Scene3ChainReaction onComplete={() => markDone(3)} />
-            </SceneWrap>
-          )}
-          {scene === 4 && (
-            <SceneWrap id={4} dir={dir}>
-              <Scene4Reactor onComplete={() => markDone(4)} />
-            </SceneWrap>
-          )}
-          {scene === 5 && (
-            <SceneWrap id={5} dir={dir}>
-              <Scene5Radiation onComplete={() => markDone(5)} />
-            </SceneWrap>
-          )}
-          {scene === 6 && (
-            <SceneWrap id={6} dir={dir}>
-              <Scene6NuclearWaste onComplete={() => markDone(6)} />
-            </SceneWrap>
-          )}
-          {scene === 7 && (
-            <SceneWrap id={7} dir={dir}>
-              <FinalReviewScene
-                completedScenes={done}
-                visitedScenes={visited}
-                onRestart={() => { try { localStorage.removeItem(STORAGE_KEY); } catch {} go(1); setDone(new Set()); setVisited(new Set()); setLanding(true); }}
-              />
-            </SceneWrap>
-          )}
+          <SceneWrap id={scene} dir={dir}>
+            {scene === 1 && <Scene1Nucleus onComplete={() => markDone(1)} onFissionNext={() => go(2)} />}
+            {scene === 2 && <Scene2Fission onComplete={() => markDone(2)} />}
+            {scene === 3 && <Scene3ChainReaction onComplete={() => markDone(3)} />}
+            {scene === 4 && <Scene4Reactor onComplete={() => markDone(4)} />}
+            {scene === 5 && <Scene5Radiation onComplete={() => markDone(5)} />}
+            {scene === 6 && <Scene6NuclearWaste onComplete={() => markDone(6)} />}
+            {scene === 7 && <FinalReviewScene completedScenes={done} visitedScenes={visited} onRestart={resetProgress} />}
+          </SceneWrap>
         </AnimatePresence>
       </main>
 

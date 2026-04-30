@@ -124,7 +124,7 @@ const FissionAnimation = ({ fissionStarted, onComplete }) => {
                   />
                 );
               })}
-              <text x="0" y="135" textAnchor="middle" fill="#a855f7" fontSize="15" fontWeight="700">⁹²U²³⁵</text>
+              <text x="0" y="135" textAnchor="middle" fill="#a855f7" fontSize="15" fontWeight="700"><tspan fontSize="10" dy="-5">92</tspan><tspan dy="5">U</tspan><tspan fontSize="10" dy="-5">235</tspan></text>
               <text x="0" y="-145" textAnchor="middle" fill="#94a3b8" fontSize="12" fontWeight="600">
                 Waiting for neutron…
               </text>
@@ -142,7 +142,7 @@ const FissionAnimation = ({ fissionStarted, onComplete }) => {
                   animate={{ scale: [1, 1.4, 1] }}
                   transition={{ duration: 0.25, repeat: 3 }}
                 />
-                <text x="16" y="4" fill="#fde68a" fontSize="12" fontWeight="700">n⁰</text>
+                <text x="16" y="4" fill="#fde68a" fontSize="12" fontWeight="700">n<tspan fontSize="9" dy="-4">0</tspan></text>
               </motion.g>
 
               {/* ── STAGE 2: Compound U-236 vibrating dumbbell (0.8 → 2.2 s) ─ */}
@@ -188,7 +188,7 @@ const FissionAnimation = ({ fissionStarted, onComplete }) => {
                   );
                 })}
                 <text x="0" y="-130" textAnchor="middle" fill="#c4b5fd" fontSize="13" fontWeight="700">
-                  ⁹²U²³⁶ — stretching…
+                  <tspan fontSize="9" dy="-4">92</tspan><tspan dy="4">U</tspan><tspan fontSize="9" dy="-4">236</tspan><tspan dy="4"> — stretching…</tspan>
                 </text>
               </motion.g>
 
@@ -238,7 +238,7 @@ const FissionAnimation = ({ fissionStarted, onComplete }) => {
                     filter="url(#particleGlow)"
                   />
                 ))}
-                <text x="0" y="72" textAnchor="middle" fill="#38bdf8" fontSize="14" fontWeight="700">⁹²Kr</text>
+                <text x="0" y="72" textAnchor="middle" fill="#38bdf8" fontSize="14" fontWeight="700"><tspan fontSize="10" dy="-4">92</tspan><tspan dy="4">Kr</tspan></text>
               </motion.g>
 
               {/* ── STAGE 3c: Ba-141 fragment (larger, lower-right) ────── */}
@@ -257,7 +257,7 @@ const FissionAnimation = ({ fissionStarted, onComplete }) => {
                     filter="url(#particleGlow)"
                   />
                 ))}
-                <text x="0" y="92" textAnchor="middle" fill="#f472b6" fontSize="14" fontWeight="700">¹⁴¹Ba</text>
+                <text x="0" y="92" textAnchor="middle" fill="#f472b6" fontSize="14" fontWeight="700"><tspan fontSize="10" dy="-4">141</tspan><tspan dy="4">Ba</tspan></text>
               </motion.g>
 
               {/* ── Released neutrons ──────────────────────────────────── */}
@@ -272,7 +272,7 @@ const FissionAnimation = ({ fissionStarted, onComplete }) => {
                   transition={{ duration: 1.3, delay: 2.3 + i * 0.12 }}
                 >
                   <circle cx="0" cy="0" r="9" fill="#fbbf24" filter="url(#strongGlow)" />
-                  <text x="14" y="4" fill="#fde68a" fontSize="11" fontWeight="700">n⁰</text>
+                  <text x="14" y="4" fill="#fde68a" fontSize="11" fontWeight="700">n<tspan fontSize="8" dy="-4">0</tspan></text>
                 </motion.g>
               ))}
 

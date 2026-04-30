@@ -1,11 +1,11 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChainReactionAnimation from './ChainReactionAnimation';
 import Scene3TextPanel from './Scene3TextPanel';
 import './Scene3ChainReaction.css';
 
 // Temperature Gauge (right-column dashboard widget) 
-const TempGauge = ({ temperature }) => {
+const TempGauge = ({ temperature, kFactor }) => {
   const clamp  = Math.max(0, Math.min(100, temperature));
   const zone   = clamp < 33 ? 'subcritical' : clamp < 66 ? 'critical' : 'supercritical';
   const colour = { subcritical: '#3b82f6', critical: '#10b981', supercritical: '#dc2626' }[zone];
@@ -15,6 +15,10 @@ const TempGauge = ({ temperature }) => {
     critical:      'Balanced! Each neutron triggers exactly one more fission.',
     supercritical: 'RUNAWAY. Lower the rods immediately!',
   }[zone];
+  const kColour = kFactor == null ? '#94a3b8'
+    : kFactor > 1.02 ? '#dc2626'
+    : kFactor < 0.98 ? '#3b82f6'
+    : '#10b981';
 
   return (
     <div className="tg-wrap">
@@ -44,18 +48,37 @@ const TempGauge = ({ temperature }) => {
 
       <div className={`tg-badge tg-badge-${zone}`}>{label}</div>
       <p className="tg-hint">{hint}</p>
+      <div className="tg-k-row">
+        <span className="tg-k-label">Neutron multiplication <em>k</em></span>
+        <span className="tg-k-value" style={{ color: kColour }}>
+          {kFactor != null ? kFactor.toFixed(2) : '—'}
+        </span>
+      </div>
     </div>
   );
 };
 
 // Scene 3 
 const Scene3ChainReaction = ({ onComplete }) => {
-  const [reactionStarted,   setReactionStarted]   = useState(false);
-  const [controlRodPosition, setControlRodPosition] = useState(0); // 0=raised, 100=lowered
-  const [temperature, setTemperature] = useState(0);
+  const [reactionStarted,    setReactionStarted]    = useState(false);
+  const [controlRodPosition, setControlRodPosition] = useState(0);
+  const [temperature,        setTemperature]        = useState(0);
+  const [kFactor,            setKFactor]            = useState(null);
+  const prevTempRef = useRef(0);
+
+  useEffect(() => {
+    if (!reactionStarted) { setKFactor(null); prevTempRef.current = 0; return; }
+    const slope = temperature - prevTempRef.current;
+    const rawK  = 1 + slope * 0.12;
+    setKFactor(prev => {
+      const next = (prev ?? 1.0) * 0.82 + Math.max(0.5, Math.min(1.8, rawK)) * 0.18;
+      return +next.toFixed(3);
+    });
+    prevTempRef.current = temperature;
+  }, [temperature, reactionStarted]);
 
   const meltdown = temperature > 85;
-  const isStable  = reactionStarted && temperature < 66 && temperature > 2;
+  const glowIntensity = temperature > 66 ? Math.min(1, (temperature - 66) / 34) : 0;
 
   const handleStartReaction = () => {
     setReactionStarted(true);
@@ -67,6 +90,8 @@ const Scene3ChainReaction = ({ onComplete }) => {
     setReactionStarted(false);
     setTemperature(0);
     setControlRodPosition(0);
+    setKFactor(null);
+    prevTempRef.current = 0;
   };
 
   return (
@@ -85,7 +110,12 @@ const Scene3ChainReaction = ({ onComplete }) => {
         </div>
 
         {/* CENTRE — interactive reactor canvas (50%) */}
-        <div className={`s3-center${meltdown ? ' meltdown' : ''}`}>
+        <div
+          className={`s3-center${meltdown ? ' meltdown' : ''}`}
+          style={glowIntensity > 0 && !meltdown ? {
+            boxShadow: `inset 0 0 ${Math.round(60 * glowIntensity)}px ${Math.round(20 * glowIntensity)}px rgba(220,38,38,${(0.35 * glowIntensity).toFixed(2)})`
+          } : undefined}
+        >
           <ChainReactionAnimation
             reactionStarted={reactionStarted}
             controlRodPosition={controlRodPosition}
@@ -110,18 +140,7 @@ const Scene3ChainReaction = ({ onComplete }) => {
         {/* RIGHT — dashboard controls (25%) */}
         <div className="s3-right">
 
-          {/* Reactor status chip */}
-          <div className={`s3-status-chip ${meltdown ? 's3-chip-meltdown' : isStable ? 's3-chip-stable' : 's3-chip-idle'}`}>
-            {meltdown
-              ? '⚠ MELTDOWN WARNING'
-              : isStable
-              ? '✓ STATUS: STABLE'
-              : reactionStarted
-              ? '⬤ REACTION ACTIVE'
-              : '○ AWAITING START'}
-          </div>
-
-          <TempGauge temperature={temperature} />
+          <TempGauge temperature={temperature} kFactor={reactionStarted ? kFactor : null} />
 
           {/* Control rods */}
           <div className="s3-ctrl-box">
@@ -137,13 +156,17 @@ const Scene3ChainReaction = ({ onComplete }) => {
               value={controlRodPosition}
               onChange={e => setControlRodPosition(parseInt(e.target.value))}
               className="s3-slider"
+              disabled={!reactionStarted}
+              title={!reactionStarted ? 'Start the reaction first' : undefined}
             />
             <div className="s3-slider-labels">
               <span>Raise</span>
               <span>Lower</span>
             </div>
             <p className="s3-rod-hint">
-              Drag right to lower rods. They absorb neutrons and cool the reaction.
+              {reactionStarted
+                ? 'Drag right to lower rods. They absorb neutrons and cool the reaction.'
+                : 'Start the reaction first, then adjust rods to control the cascade.'}
             </p>
           </div>
 
@@ -153,7 +176,7 @@ const Scene3ChainReaction = ({ onComplete }) => {
               <motion.button
                 className="s3-btn-start"
                 onClick={handleStartReaction}
-                whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}
+                whileTap={{ scale: 0.97 }}
               >
                 Start Reaction
               </motion.button>
@@ -161,7 +184,7 @@ const Scene3ChainReaction = ({ onComplete }) => {
               <motion.button
                 className="s3-btn-reset"
                 onClick={handleReset}
-                whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}
+                whileTap={{ scale: 0.97 }}
               >
                 Reset Reactor
               </motion.button>

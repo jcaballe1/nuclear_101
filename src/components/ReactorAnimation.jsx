@@ -61,27 +61,23 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
   const outputFlash= lerp(0.1, 1.0, p);
   const pipeAlpha  = clamp(p * 1.4, 0, 1);
 
-  /* Vapor puffs (tower & core) using timestamps for unique keys */
+  /* Core heat puffs only — tower plume is fully CSS-animated, no interval needed */
   const [steamPuffs, setSteamPuffs] = useState([]);
-  const [towerVapor, setTowerVapor] = useState([]);
 
   useEffect(() => {
-    if (power < 2) { setSteamPuffs([]); setTowerVapor([]); return; }
+    if (power < 2) { setSteamPuffs([]); return; }
     const interval = Math.max(80, 450 - power * 3.8);
     const si = setInterval(() => {
       setSteamPuffs(prev => [...prev.slice(-12), { id: Date.now() + Math.random(), x: -175 + Math.random() * 50 }]);
     }, interval);
-    const vi = setInterval(() => {
-      setTowerVapor(prev => [...prev.slice(-10), { id: Date.now() + Math.random(), x: 278 + Math.random() * 44 }]);
-    }, interval * 1.4);
-    return () => { clearInterval(si); clearInterval(vi); };
+    return () => { clearInterval(si); };
   }, [power]);
 
   return (
     <div className="ra-wrap">
       {/* ── SVG Diagram ───────────────────────── */}
       <svg
-        viewBox="-300 -400 1000 740"
+        viewBox="-300 -420 950 860"
         preserveAspectRatio="xMidYMid meet"
         className="ra-svg"
         xmlns="http://www.w3.org/2000/svg"
@@ -101,6 +97,11 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
           </filter>
           <filter id="ra-glow-lg" x="-80%" y="-80%" width="260%" height="260%">
             <feGaussianBlur stdDeviation="14" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          {/* Steam plume — one shared soft blur pass for all plume layers */}
+          <filter id="ra-steam" x="-80%" y="-120%" width="260%" height="400%">
+            <feGaussianBlur stdDeviation="7" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
 
@@ -125,9 +126,25 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
             <stop offset="0%"   stopColor="#1e3a8a"/>
             <stop offset="100%" stopColor="#1d4ed8"/>
           </linearGradient>
-          <linearGradient id="ra-tower-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%"   stopColor="#164e63"/>
-            <stop offset="100%" stopColor="#0c3d50"/>
+          <linearGradient id="ra-tower-body" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stopColor="#7a9ab0"/>
+            <stop offset="22%"  stopColor="#607a90"/>
+            <stop offset="55%"  stopColor="#3f5368"/>
+            <stop offset="82%"  stopColor="#27384c"/>
+            <stop offset="100%" stopColor="#172030"/>
+          </linearGradient>
+          <linearGradient id="ra-tower-edge-shadow" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stopColor="#000" stopOpacity="0"/>
+            <stop offset="55%"  stopColor="#000" stopOpacity="0"/>
+            <stop offset="100%" stopColor="#000" stopOpacity="0.45"/>
+          </linearGradient>
+          <linearGradient id="ra-tower-base-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%"   stopColor="#3a5060"/>
+            <stop offset="100%" stopColor="#1c2c3c"/>
+          </linearGradient>
+          <linearGradient id="ra-tower-rim-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%"   stopColor="#1e3a4a"/>
+            <stop offset="100%" stopColor="#0e2535"/>
           </linearGradient>
           <radialGradient id="ra-bg" cx="38%" cy="38%" r="72%">
             <stop offset="0%"   stopColor="#1a2744"/>
@@ -136,24 +153,25 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
         </defs>
 
         {/* ── Background ─────────────────────── */}
-        <rect x="-300" y="-400" width="1000" height="740" fill="url(#ra-bg)" rx="14"/>
-        {Array.from({ length: 10 }, (_, i) => (
-          <line key={`vg${i}`} x1={-300 + i * 100} y1="-400" x2={-300 + i * 100} y2="340"
+        <rect x="-300" y="-420" width="950" height="860" fill="url(#ra-bg)" rx="14"/>
+        {Array.from({ length: 11 }, (_, i) => (
+          <line key={`vg${i}`} x1={-300 + i * 86} y1="-420" x2={-300 + i * 86} y2="440"
             stroke="#fff" strokeWidth="0.5" opacity="0.025"/>
         ))}
-        {Array.from({ length: 8 }, (_, i) => (
-          <line key={`hg${i}`} x1="-300" y1={-400 + i * 105} x2="700" y2={-400 + i * 105}
+        {Array.from({ length: 10 }, (_, i) => (
+          <line key={`hg${i}`} x1="-300" y1={-420 + i * 96} x2="650" y2={-420 + i * 96}
             stroke="#fff" strokeWidth="0.5" opacity="0.025"/>
         ))}
 
-        {/* ── REACTOR VESSEL ─────────────────── */}
-        <rect x="-240" y="-130" width="180" height="260" rx="22"
+        {/* ── REACTOR VESSEL ─────────────────────────────────────────────── */}
+        {/* Vessel spans y=-180 to y=160 (340 px); SG base also at y=140 → aligned */}
+        <rect x="-240" y="-180" width="180" height="340" rx="22"
           fill="url(#ra-vessel)" stroke="#5a6a80" strokeWidth="2.5"/>
-        <rect x="-256" y="-148" width="212" height="24" rx="8"
+        <rect x="-256" y="-198" width="212" height="24" rx="8"
           fill="#283347" stroke="#5a6a80" strokeWidth="1.5"/>
-        <rect x="-256" y="124" width="212" height="24" rx="8"
+        <rect x="-256" y="162" width="212" height="24" rx="8"
           fill="#283347" stroke="#5a6a80" strokeWidth="1.5"/>
-        {[-95, -50, -5, 40, 85].map((y, i) => (
+        {[-130, -76, -22, 32, 86, 128].map((y, i) => (
           <React.Fragment key={`bolt-${i}`}>
             <circle cx="-243" cy={y} r="4" fill="#2d3d52" stroke="#4a5e78" strokeWidth="1"/>
             <circle cx="-57"  cy={y} r="4" fill="#2d3d52" stroke="#4a5e78" strokeWidth="1"/>
@@ -162,56 +180,57 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
 
         {/* Core glow halo */}
         <motion.rect
-          x="-220" y="-88" width="140" height="176" rx="10"
+          x="-220" y="-130" width="140" height="250" rx="10"
           fill="#f59e0b"
           animate={{ opacity: [coreGlow * 0.55, coreGlow, coreGlow * 0.55] }}
           transition={{ duration: 2.5 - p * 1.6, repeat: Infinity, ease: 'easeInOut' }}
           style={{ filter: 'url(#ra-glow-lg)' }}
         />
         {/* Core body */}
-        <rect x="-220" y="-88" width="140" height="176" rx="10" fill="url(#ra-core)"
+        <rect x="-220" y="-130" width="140" height="250" rx="10" fill="url(#ra-core)"
           opacity={0.5 + p * 0.4}/>
 
-        {/* Fuel rods */}
+        {/* Fuel rods — span core height */}
         {[-48, -24, 0, 24, 48].map((ox, i) => (
           <motion.rect key={`fuel-${i}`}
-            x={-153 + ox} y="-83" width="11" height="166" rx="4"
+            x={-153 + ox} y="-124" width="11" height="238" rx="4"
             fill={p > 0.02 ? '#fbbf24' : '#78350f'}
             animate={{ opacity: p > 0.02 ? [0.35, 0.85, 0.35] : 0.25 }}
             transition={{ duration: 1.6 - p * 0.8, repeat: Infinity, delay: i * 0.18, ease: 'easeInOut' }}
           />
         ))}
 
-        {/* Control rods – fully lowered when power=0, retracted when high */}
+        {/* Control rods — fully inserted at p=0, mostly withdrawn at p=1 */}
         {[-48, -24, 0, 24, 48].map((ox, i) => (
           <motion.rect key={`crod-${i}`}
             x={-151 + ox} width="10" rx="3"
             fill="#0d1520" stroke="#2d3d52" strokeWidth="1"
             animate={{
-              y: p < 0.02 ? -83 : -148,
-              height: p < 0.02 ? 170 : 58,
+              y:      lerp(-124, -198, p),
+              height: lerp(238,   62, p),
             }}
-            transition={{ duration: 0.65, delay: i * 0.06, ease: 'easeInOut' }}
+            transition={{ duration: 0.45, delay: i * 0.04, ease: 'easeOut' }}
           />
         ))}
-        <rect x="-266" y="-164" width="232" height="14" rx="4"
+        {/* Control rod drive mechanism — top guide bar + rod heads */}
+        <rect x="-266" y="-214" width="232" height="14" rx="4"
           fill="#1a2433" stroke="#3a4d63" strokeWidth="1"/>
         {[-48, -24, 0, 24, 48].map((ox, i) => (
-          <rect key={`rh-${i}`} x={-158 + ox} y="-168" width="15" height="10" rx="3"
+          <rect key={`rh-${i}`} x={-158 + ox} y="-218" width="15" height="10" rx="3"
             fill="#283347" stroke="#4a5e78" strokeWidth="1"/>
         ))}
 
         {/* Reactor label */}
-        <text x="-150" y="170" fontSize="12" fill="#94a3b8" textAnchor="middle"
+        <text x="-150" y="208" fontSize="12" fill="#94a3b8" textAnchor="middle"
           fontWeight="700" letterSpacing="2">REACTOR CORE</text>
 
         {/* Internal heat puffs */}
         {steamPuffs.map(pp => (
-          <motion.circle key={pp.id} cx={pp.x} cy={-65} r={6 + p * 4}
+          <motion.circle key={pp.id} cx={pp.x} cy={-90} r={6 + p * 4}
             fill="#fcd34d" fillOpacity={0.6 + p * 0.3}
             style={{ filter: 'url(#ra-glow-sm)' }}
             initial={{ y: 0, opacity: 0.7, scale: 0.6 }}
-            animate={{ y: -145, opacity: 0, scale: 2 + p }}
+            animate={{ y: -180, opacity: 0, scale: 2 + p }}
             transition={{ duration: 1.6 - p * 0.6, ease: 'easeOut' }}
           />
         ))}
@@ -221,116 +240,126 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
             Closed; never leaves containment. PWR & SMR only.
         ────────────────────────────────────────────────────── */}
         {hasPrimaryLoop && (<>
-        {/* Hot leg: reactor top → SG primary inlet (top-left) */}
+        {/* Hot leg: reactor top → SG primary inlet */}
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M -60 -96 L -60 -240 L 35 -240 L 35 -200"
-            stroke="#c2410c"
-            strokeWidth={16}
-            dashLen={18} gapLen={18}
-            duration={steamSpeed}
-            sheen
+            d="M -60 -180 L -60 -280 L 65 -280 L 65 -200"
+            stroke="#c2410c" strokeWidth={16} dashLen={18} gapLen={18}
+            duration={steamSpeed} sheen
           />
         </g>
-        {/* Cold leg: SG primary outlet (bottom) → Primary Pump → reactor bottom */}
+        {/* Cold leg: SG bottom → Primary Pump → reactor bottom */}
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M 65 100 L 65 130 L -60 130 L -60 96"
-            stroke="#b91c1c"
-            strokeWidth={16}
-            dashLen={18} gapLen={18}
+            d="M 65 140 L 65 200 L -62 200 L -62 162"
+            stroke="#b91c1c" strokeWidth={16} dashLen={18} gapLen={18}
             duration={waterSpeed * 0.85}
           />
         </g>
         </>)}
 
-        {/* Pressuriser surge line (tee onto hot leg) — PWR only (SMR is integral) */}
+        {/* Pressuriser surge line — tee onto hot leg at y=-280 */}
         {isPWR && (<>
-        <line x1="5" y1="-240" x2="5" y2="-210"
+        <line x1="5" y1="-280" x2="5" y2="-240"
           stroke="#000" strokeWidth="12" opacity={pipeAlpha * 0.4} strokeLinecap="round"/>
-        <line x1="5" y1="-240" x2="5" y2="-210"
+        <line x1="5" y1="-280" x2="5" y2="-240"
           stroke="#c2410c" strokeWidth="7" opacity={pipeAlpha * 0.9} strokeLinecap="round"/>
 
-        {/* Pressuriser vessel */}
+        {/* Pressuriser vessel — enlarged 55×95 for visual weight */}
         <g opacity={0.4 + p * 0.55}>
-          <rect x="-15" y="-280" width="40" height="70" rx="8"
+          <rect x="-22" y="-380" width="54" height="100" rx="10"
             fill="#475569" stroke="#94a3b8" strokeWidth="2"/>
-          <ellipse cx="5" cy="-280" rx="20" ry="6"
+          <ellipse cx="5" cy="-380" rx="27" ry="7"
             fill="#64748b" stroke="#94a3b8" strokeWidth="1.5"/>
-          <motion.rect x="-12" y="-258" width="34" height="44" rx="4"
+          <ellipse cx="5" cy="-280" rx="27" ry="7"
+            fill="#64748b" stroke="#94a3b8" strokeWidth="1.5"/>
+          <motion.rect x="-18" y="-358" width="46" height="70" rx="5"
             fill="#fb923c"
             animate={{ opacity: [0.3, 0.55 + p * 0.2, 0.3] }}
             transition={{ duration: 2.4 - p * 1.2, repeat: Infinity }}
           />
-          <text x="5" y="-292" fontSize="9" fill="#cbd5e1"
+          {/* Electric immersion heaters */}
+          <g>
+            <rect x="-14" y="-296" width="38" height="2" rx="1" fill="#475569"/>
+            {[-8, 1, 10].map((hx, i) => (
+              <motion.rect key={`heater-${i}`}
+                x={hx} y="-306" width="3" height="12" rx="1.2"
+                animate={p > 0 ? {
+                  fill: ['#7c2d12', '#f97316', '#fb7185', '#f97316', '#7c2d12'],
+                } : { fill: '#7c2d12' }}
+                transition={p > 0 ? {
+                  duration: 1.6 - p * 0.9, repeat: Infinity, delay: i * 0.18, ease: 'easeInOut',
+                } : { duration: 0 }}
+                style={p > 0 ? { filter: 'url(#ra-glow-sm)' } : undefined}
+              />
+            ))}
+          </g>
+          <text x="5" y="-392" fontSize="9" fill="#cbd5e1"
             textAnchor="middle" fontWeight="700" letterSpacing="1">PRESSURISER</text>
         </g>
         </>)}
 
-        {/* Steam Generator (heat exchanger between primary & secondary) — PWR & SMR */}
+        {/* Steam Generator — y=-200 to y=140 (h=340 matches reactor extent) */}
         {hasPrimaryLoop && (
         <g opacity={0.5 + p * 0.5}>
-          <rect x="20" y="-200" width="90" height="300" rx="22"
+          <rect x="15" y="-200" width="100" height="340" rx="22"
             fill="#3b4a5e" stroke="#94a3b8" strokeWidth="2"/>
-          <ellipse cx="65" cy="-200" rx="45" ry="9"
+          <ellipse cx="65" cy="-200" rx="50" ry="9"
             fill="#475569" stroke="#94a3b8" strokeWidth="1.5"/>
-          <ellipse cx="65" cy="100" rx="45" ry="9"
+          <ellipse cx="65" cy="140" rx="50" ry="9"
             fill="#475569" stroke="#94a3b8" strokeWidth="1.5"/>
-          {/* Tube bundle */}
-          {[-120, -80, -40, 0, 40, 80].map((ty, i) => (
-            <line key={`sgtb-${i}`} x1="32" y1={ty} x2="98" y2={ty}
+          {[-140,-100,-60,-20,20,60,100].map((ty, i) => (
+            <line key={`sgtb-${i}`} x1="22" y1={ty} x2="108" y2={ty}
               stroke="#1e293b" strokeWidth="1.5" opacity="0.6"/>
           ))}
-          {/* Bubbles rising on the secondary side */}
-          {p > 0.05 && [0, 1, 2].map(i => (
-            <motion.circle key={`sgb-${i}`} cx={45 + i * 20} r={3 + p * 2}
+          {p > 0.05 && [0, 1, 2, 3].map(i => (
+            <motion.circle key={`sgb-${i}`} cx={38 + i * 18} r={3 + p * 2}
               fill="#fef3c7" fillOpacity={0.7}
-              animate={{ cy: [80, -190], opacity: [0.7, 0] }}
-              transition={{ duration: 2.4 - p * 1.0, repeat: Infinity, delay: i * 0.6, ease: 'easeOut' }}
+              animate={{ cy: [120, -190], opacity: [0.7, 0] }}
+              transition={{ duration: 2.4 - p * 1.0, repeat: Infinity, delay: i * 0.5, ease: 'easeOut' }}
             />
           ))}
-          <text x="65" y="122" fontSize="11" fill="#cbd5e1" textAnchor="middle"
+          <text x="65" y="158" fontSize="11" fill="#cbd5e1" textAnchor="middle"
             fontWeight="700" letterSpacing="1.2">STEAM GENERATOR</text>
         </g>
         )}
 
-        {/* Primary circulation pump — PWR only (SMR uses natural circulation) */}
+        {/* Primary circulation pump — on cold-leg return at cy=200, cx=-80 */}
         {isPWR && (
         <g opacity={0.45 + p * 0.55}>
-          <circle cx="20" cy="130" r="20"
+          <circle cx="-80" cy="200" r="18"
             fill="#374151" stroke="#94a3b8" strokeWidth="2"/>
-          <motion.g
-            style={{ transformOrigin: '20px 130px' }}
-            animate={{ rotate: p < 0.02 ? 0 : 360 }}
-            transition={{ duration: lerp(6, 0.5, p), repeat: Infinity, ease: 'linear' }}
-          >
-            {[0, 60, 120, 180, 240, 300].map(deg => (
-              <line key={`ppb-${deg}`}
-                x1="20" y1="130"
-                x2={20 + Math.cos(deg * Math.PI / 180) * 14}
-                y2={130 + Math.sin(deg * Math.PI / 180) * 14}
-                stroke="#fda4af" strokeWidth="2.5" strokeLinecap="round"/>
-            ))}
-          </motion.g>
-          <circle cx="20" cy="130" r="4" fill="#94a3b8"/>
-          <text x="20" y="168" fontSize="9" fill="#94a3b8" textAnchor="middle"
+          <g transform="translate(-80,200)">
+            <motion.g
+              style={{ transformOrigin: '0px 0px' }}
+              animate={{ rotate: p < 0.02 ? 0 : 360 }}
+              transition={{ duration: lerp(6, 0.5, p), repeat: Infinity, ease: 'linear' }}
+            >
+              {[0, 60, 120, 180, 240, 300].map(deg => (
+                <line key={`ppb-${deg}`}
+                  x1="0" y1="0"
+                  x2={Math.cos(deg * Math.PI / 180) * 12}
+                  y2={Math.sin(deg * Math.PI / 180) * 12}
+                  stroke="#fda4af" strokeWidth="2.5" strokeLinecap="round"/>
+              ))}
+            </motion.g>
+          </g>
+          <circle cx="-80" cy="200" r="4" fill="#94a3b8"/>
+          <text x="-80" y="232" fontSize="9" fill="#94a3b8" textAnchor="middle"
             fontWeight="700" letterSpacing="0.6">PRIMARY PUMP</text>
         </g>
         )}
 
-        {/* ── SECONDARY LOOP — hot steam: SG → Turbine ── (PWR & SMR) */}
+        {/* ── SECONDARY LOOP — hot steam: SG top → Turbine ── (PWR & SMR) */}
         {hasPrimaryLoop && (<>
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M 95 -200 L 95 -220 L 192 -220"
-            stroke="#c2410c"
-            strokeWidth={16}
-            dashLen={20} gapLen={18}
-            duration={steamSpeed}
-            sheen
+            d="M 115 -200 L 115 -260 L 180 -260"
+            stroke="#c2410c" strokeWidth={16} dashLen={20} gapLen={18}
+            duration={steamSpeed} sheen
           />
         </g>
-        <motion.text x="140" y="-232" fontSize="10" fill="#fb923c"
+        <motion.text x="148" y="-272" fontSize="10" fill="#fb923c"
           textAnchor="middle" fontStyle="italic"
           animate={{ opacity: pipeAlpha * 0.85 }}>
           hot steam
@@ -341,130 +370,149 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
         {isBWR && (<>
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M -60 -96 L -60 -260 L 192 -260 L 192 -220"
-            stroke="#c2410c"
-            strokeWidth={16}
-            dashLen={20} gapLen={18}
-            duration={steamSpeed}
-            sheen
+            d="M -60 -180 L -60 -300 L 180 -300 L 180 -260"
+            stroke="#c2410c" strokeWidth={16} dashLen={20} gapLen={18}
+            duration={steamSpeed} sheen
           />
         </g>
-        <motion.text x="66" y="-272" fontSize="10" fill="#fb923c"
+        <motion.text x="60" y="-312" fontSize="10" fill="#fb923c"
           textAnchor="middle" fontStyle="italic"
           animate={{ opacity: pipeAlpha * 0.85 }}>
           direct steam (slightly radioactive)
         </motion.text>
         </>)}
 
-        {/* ── TURBINE ───────────────────────────── */}
-        <rect x="192" y="-285" width="160" height="130" rx="14"
+        {/* ── TURBINE x=180–340 ── */}
+        <rect x="180" y="-320" width="160" height="130" rx="14"
           fill="url(#ra-turbine-grad)" stroke="#5a6a80" strokeWidth="2" opacity={0.3 + p * 0.7}/>
-        <rect x="197" y="-280" width="150" height="6" rx="2"
+        <rect x="185" y="-315" width="150" height="6" rx="2"
           fill="#94a3b8" fillOpacity={0.28 * (0.3 + p * 0.7)}/>
 
         {/* Spinning blades */}
-        <motion.g
-          style={{ transformOrigin: '272px -220px' }}
-          animate={{ rotate: p < 0.02 ? 0 : 360 }}
-          transition={{ duration: spinDur, repeat: Infinity, ease: 'linear' }}
-        >
-          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(deg => (
-            <line key={deg}
-              x1="272" y1="-220"
-              x2={272 + Math.cos((deg - 90) * Math.PI / 180) * 48}
-              y2={-220 + Math.sin((deg - 90) * Math.PI / 180) * 48}
-              stroke="#cbd5e1" strokeWidth={4 + p * 2} strokeLinecap="round"
-              opacity={0.4 + p * 0.6}
-            />
-          ))}
-        </motion.g>
+        <g transform="translate(260,-255)">
+          <motion.g
+            style={{ transformOrigin: '0px 0px' }}
+            animate={{ rotate: p < 0.02 ? 0 : 360 }}
+            transition={{ duration: spinDur, repeat: Infinity, ease: 'linear' }}
+          >
+            {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(deg => (
+              <line key={deg}
+                x1="0" y1="0"
+                x2={Math.cos((deg - 90) * Math.PI / 180) * 50}
+                y2={Math.sin((deg - 90) * Math.PI / 180) * 50}
+                stroke="#cbd5e1" strokeWidth={4 + p * 2} strokeLinecap="round"
+                opacity={0.4 + p * 0.6}
+              />
+            ))}
+          </motion.g>
+        </g>
         {/* Hub */}
-        <circle cx="272" cy="-220" r="15" fill="#4b5563" stroke="#94a3b8" strokeWidth="2.5"
+        <circle cx="260" cy="-255" r="15" fill="#4b5563" stroke="#94a3b8" strokeWidth="2.5"
           opacity={0.3 + p * 0.7}/>
-        <circle cx="272" cy="-220" r="6" fill="#94a3b8" opacity={0.3 + p * 0.7}/>
-        <text x="272" y="-297" fontSize="12" fill="#94a3b8" textAnchor="middle"
+        <circle cx="260" cy="-255" r="6" fill="#94a3b8" opacity={0.3 + p * 0.7}/>
+        <text x="260" y="-332" fontSize="12" fill="#94a3b8" textAnchor="middle"
           fontWeight="700" letterSpacing="1.5" opacity={0.3 + p * 0.7}>TURBINE</text>
 
-        {/* ── SHAFT ─────────────────────────────── */}
-        <rect x="352" y="-228" width="62" height="16" rx="5"
+        {/* ── SHAFT x=340–402 ── */}
+        <rect x="340" y="-263" width="62" height="16" rx="5"
           fill="#3b4a5e" stroke="#5a6a80" strokeWidth="1.5" opacity={0.3 + p * 0.7}/>
-        {[360, 382].map((sx, i) => (
-          <rect key={`sc-${i}`} x={sx} y="-233" width="14" height="26" rx="4"
+        {[348, 370].map((sx, i) => (
+          <rect key={`sc-${i}`} x={sx} y="-268" width="14" height="26" rx="4"
             fill="#283347" stroke="#5a6a80" strokeWidth="1" opacity={0.3 + p * 0.7}/>
         ))}
-        {/* Spinning shaft indicator */}
-        <motion.g
-          style={{ transformOrigin: '383px -220px' }}
-          animate={{ rotate: p < 0.02 ? 0 : 360 }}
-          transition={{ duration: spinDur * 1.05, repeat: Infinity, ease: 'linear' }}
-        >
-          <line x1="383" y1="-231" x2="383" y2="-209"
-            stroke="#60a5fa" strokeWidth="3" strokeLinecap="round" opacity={0.5 + p * 0.5}/>
-        </motion.g>
+        <g transform="translate(371,-255)">
+          <motion.g
+            style={{ transformOrigin: '0px 0px' }}
+            animate={{ rotate: p < 0.02 ? 0 : 360 }}
+            transition={{ duration: spinDur * 1.05, repeat: Infinity, ease: 'linear' }}
+          >
+            <line x1="0" y1="-11" x2="0" y2="11"
+              stroke="#60a5fa" strokeWidth="3" strokeLinecap="round" opacity={0.5 + p * 0.5}/>
+          </motion.g>
+        </g>
 
-        {/* ── GENERATOR ─────────────────────────── */}
-        <rect x="414" y="-285" width="148" height="130" rx="14"
-          fill="url(#ra-gen-grad)" stroke="#3b82f6" strokeWidth="2"
+        {/* ── GENERATOR x=402–550 — cross-section: stator + salient-pole rotor ── */}
+        {/* Casing */}
+        <rect x="402" y="-320" width="148" height="130" rx="14"
+          fill="url(#ra-gen-grad)" stroke="#3b82f6" strokeWidth="2.5"
           opacity={0.3 + p * 0.7}/>
-        {/* Pulsing ring */}
-        <motion.rect x="414" y="-285" width="148" height="130" rx="14"
+        {/* Pulsing EM-field glow */}
+        <motion.rect x="402" y="-320" width="148" height="130" rx="14"
           fill="none" stroke="#60a5fa"
-          animate={{ strokeWidth: [2, 4 + p * 4, 2], strokeOpacity: [0.15, outputFlash * 0.9, 0.15] }}
+          animate={{ strokeWidth: [2, 5 + p * 5, 2], strokeOpacity: [0.12, outputFlash * 0.9, 0.12] }}
           transition={{ duration: 1.8 - p * 1.0, repeat: Infinity }}
         />
-        {/* HV Transmission Tower */}
-        <motion.g
-          transform="translate(488,-222)"
-          animate={{ opacity: [outputFlash * 0.4, outputFlash, outputFlash * 0.4] }}
-          transition={{ duration: 0.9 - p * 0.5, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ filter: 'url(#ra-glow-sm)' }}
-          opacity={0.3 + p * 0.7}
-        >
-          {/* Vertical mast */}
-          <line x1="0" y1="-28" x2="0" y2="24" stroke="#e2e8f0" strokeWidth="2.5" strokeLinecap="round"/>
-          {/* Top crossarm */}
-          <line x1="-22" y1="-18" x2="22" y2="-18" stroke="#e2e8f0" strokeWidth="2.5" strokeLinecap="round"/>
-          {/* Mid crossarm */}
-          <line x1="-15" y1="-6" x2="15" y2="-6" stroke="#e2e8f0" strokeWidth="2" strokeLinecap="round"/>
-          {/* A-frame base */}
-          <line x1="-20" y1="24" x2="20" y2="24" stroke="#e2e8f0" strokeWidth="2" strokeLinecap="round"/>
-          <line x1="-20" y1="24" x2="-6" y2="4" stroke="#e2e8f0" strokeWidth="2" strokeLinecap="round"/>
-          <line x1="20" y1="24" x2="6" y2="4" stroke="#e2e8f0" strokeWidth="2" strokeLinecap="round"/>
-          {/* Insulator caps */}
-          <circle cx="-22" cy="-18" r="3" fill="#93c5fd" opacity="0.9"/>
-          <circle cx="22" cy="-18" r="3" fill="#93c5fd" opacity="0.9"/>
-          <circle cx="-15" cy="-6" r="2.5" fill="#93c5fd" opacity="0.8"/>
-          <circle cx="15" cy="-6" r="2.5" fill="#93c5fd" opacity="0.8"/>
-        </motion.g>
-        <text x="488" y="-172" fontSize="12" fill="#93c5fd" textAnchor="middle"
+        {/* End-cap flanges (show it's a cylindrical machine) */}
+        <rect x="395" y="-308" width="11" height="106" rx="4"
+          fill="#1e3a8a" stroke="#3b82f6" strokeWidth="1.5" opacity={0.3 + p * 0.7}/>
+        <rect x="544" y="-308" width="11" height="106" rx="4"
+          fill="#1e3a8a" stroke="#3b82f6" strokeWidth="1.5" opacity={0.3 + p * 0.7}/>
+        {/* Stator bore — dark bore inner circle */}
+        <circle cx="476" cy="-255" r="46"
+          fill="#0a1428" stroke="#1e40af" strokeWidth="2.5"
+          opacity={0.3 + p * 0.7}/>
+        {/* Stator copper slot windings — 12 radial bars around the bore */}
+        {[0,30,60,90,120,150,180,210,240,270,300,330].map((deg, i) => {
+          const rad = deg * Math.PI / 180;
+          return (
+            <line key={`sw-${i}`}
+              x1={476 + Math.cos(rad) * 34} y1={-255 + Math.sin(rad) * 34}
+              x2={476 + Math.cos(rad) * 45} y2={-255 + Math.sin(rad) * 45}
+              stroke={i % 2 === 0 ? '#d97706' : '#b45309'}
+              strokeWidth="5" strokeLinecap="round"
+              opacity={0.45 + p * 0.45}/>
+          );
+        })}
+        {/* EM-field glow ring pulsing around the stator */}
+        <motion.circle cx="476" cy="-255" r="46"
+          fill="none" stroke="#93c5fd"
+          animate={{ r: [44, 48, 44], strokeOpacity: [0.08, p * 0.55, 0.08] }}
+          transition={{ duration: 1.8 - p * 1.0, repeat: Infinity }}
+        />
+        {/* Rotor — 4 salient poles with copper field coils */}
+        <g transform="translate(476,-255)">
+          <motion.g
+            style={{ transformOrigin: '0px 0px' }}
+            animate={{ rotate: p < 0.02 ? 0 : 360 }}
+            transition={{ duration: spinDur * 1.1, repeat: Infinity, ease: 'linear' }}
+            opacity={0.4 + p * 0.55}
+          >
+            {[0, 90, 180, 270].map((deg, i) => {
+              const rad = deg * Math.PI / 180;
+              const tipX = Math.cos(rad) * 28;
+              const tipY = Math.sin(rad) * 28;
+              return (
+                <g key={`rp-${i}`}>
+                  <line x1="0" y1="0" x2={tipX} y2={tipY}
+                    stroke="#93c5fd" strokeWidth="10" strokeLinecap="round"/>
+                  <circle cx={tipX} cy={tipY} r="9"
+                    fill="#2563eb" stroke="#bfdbfe" strokeWidth="1.5"/>
+                  <line
+                    x1={Math.cos(rad) * 10} y1={Math.sin(rad) * 10}
+                    x2={Math.cos(rad) * 18} y2={Math.sin(rad) * 18}
+                    stroke="#f59e0b" strokeWidth="4" strokeLinecap="round" opacity="0.8"/>
+                </g>
+              );
+            })}
+            <circle cx="0" cy="0" r="9" fill="#374151" stroke="#94a3b8" strokeWidth="2"/>
+          </motion.g>
+        </g>
+        {/* ⚡ Lightning bolt — electrical output symbol */}
+        <g opacity={0.25 + p * 0.75} filter="url(#ra-glow-sm)">
+          <path d="M 559 -276 L 548 -255 L 556 -255 L 545 -234"
+            stroke="#fbbf24" strokeWidth="3.5" fill="none"
+            strokeLinecap="round" strokeLinejoin="round"/>
+        </g>
+        <text x="476" y="-334" fontSize="12" fill="#93c5fd" textAnchor="middle"
           fontWeight="700" letterSpacing="1.5" opacity={0.3 + p * 0.7}>GENERATOR</text>
 
-        {/* 2-metric power output panel above generator */}
-        <rect x="415" y="-370" width="150" height="82" rx="6"
-          fill="#0f172a" fillOpacity={0.9} stroke="#1e3a5f" strokeWidth="1"/>
-        <text x="424" y="-355" fontSize="9" fill="#64748b" fontWeight="700" letterSpacing="1">THERMAL</text>
-        <motion.text x="544" y="-355" fontSize="12" fill="#fcd34d" textAnchor="end"
-          fontWeight="700"
-          animate={{ opacity: 0.4 + p * 0.6 }}>
-          {Math.round(power * 30)} MWt
-        </motion.text>
-        <line x1="415" y1="-344" x2="565" y2="-344" stroke="#1e3a5f" strokeWidth="1"/>
-        <text x="424" y="-330" fontSize="9" fill="#64748b" fontWeight="700" letterSpacing="1">ELECTRICAL (×0.33)</text>
-        <motion.text x="544" y="-315" fontSize="12" fill="#fef08a" textAnchor="end"
-          fontWeight="700"
-          style={{ filter: 'url(#ra-glow-sm)' }}
-          animate={{ opacity: [outputFlash * 0.5, outputFlash, outputFlash * 0.5] }}
-          transition={{ duration: 0.9 - p * 0.5, repeat: Infinity, ease: 'easeInOut' }}>
-          {Math.round(power * 30 * 0.33)} MWe
-        </motion.text>
-        <line x1="415" y1="-305" x2="565" y2="-305" stroke="#1e3a5f" strokeWidth="1"/>
-        <text x="420" y="-294" fontSize="8" fill="#475569" fontWeight="600">33% thermal efficiency · 220 kV AC</text>
+        {/* Power-output metrics live in the unified HTML dashboard */}
 
-        {/* ── POWER CABLES ─────────────────────── */}
+        {/* ── POWER CABLES — generator right → city ── */}
         <g opacity={0.2 + p * 0.8}>
           {[-7, 0, 7].map((offset, i) => (
             <motion.path key={`hv-${i}`}
-              d={`M 562 ${-225 + offset} L 615 ${-225 + offset}`}
+              d={`M 550 ${-258 + offset} L 600 ${-258 + offset}`}
               stroke="#fbbf24" strokeWidth="2.5" fill="none"
               strokeDasharray="8 5"
               style={{ filter: 'url(#ra-glow-sm)' }}
@@ -474,15 +522,15 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
           ))}
         </g>
 
-        {/* ── CITY SILHOUETTE ────────────────────── */}
+        {/* ── CITY SILHOUETTE x=600–650 ── */}
         <g opacity={0.3 + p * 0.7}>
-          <rect x="615" y="-250" width="20" height="60"  rx="2" fill="#283347"/>
-          <rect x="618" y="-263" width="14" height="17"  rx="2" fill="#2f3f56"/>
-          <rect x="637" y="-236" width="17" height="46"  rx="2" fill="#283347"/>
-          <rect x="640" y="-250" width="11" height="17"  rx="2" fill="#2f3f56"/>
+          <rect x="600" y="-285" width="22" height="66" rx="2" fill="#283347"/>
+          <rect x="603" y="-300" width="16" height="20" rx="2" fill="#2f3f56"/>
+          <rect x="625" y="-268" width="18" height="50" rx="2" fill="#283347"/>
+          <rect x="628" y="-283" width="12" height="18" rx="2" fill="#2f3f56"/>
           {[
-            [617, -243], [624, -243], [617, -231], [624, -231],
-            [639, -228], [639, -217],
+            [602,-268],[610,-268],[602,-255],[610,-255],
+            [627,-255],[627,-242],
           ].map(([wx, wy], i) => (
             <motion.rect key={`w${i}`} x={wx} y={wy} width="5" height="5"
               fill="#fef08a" rx="1"
@@ -490,159 +538,196 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
               transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.15 }}
             />
           ))}
-          <text x="634" y="-185" fontSize="11" fill="#64748b"
+          <text x="618" y="-220" fontSize="10" fill="#64748b"
             textAnchor="middle" fontWeight="600">Power Grid</text>
         </g>
 
-        {/* ── SECONDARY LOOP — spent steam: Turbine → Condenser ── */}
+        {/* ── SECONDARY LOOP — spent steam: Turbine bottom → Condenser ── */}
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M 270 -155 L 270 10"
-            stroke="#7c3aed"
-            strokeWidth={16}
-            dashLen={16} gapLen={20}
+            d="M 260 -190 L 260 200"
+            stroke="#7c3aed" strokeWidth={16} dashLen={16} gapLen={20}
             duration={spentSpeed}
           />
         </g>
-        <motion.text x="310" y="-72" fontSize="10" fill="#c4b5fd"
+        <motion.text x="300" y="10" fontSize="10" fill="#c4b5fd"
           textAnchor="start" fontStyle="italic"
           animate={{ opacity: pipeAlpha * 0.85 }}>
           spent steam
         </motion.text>
 
-        {/* ── CONDENSER (where steam gives up its latent heat) ── */}
+        {/* ── CONDENSER — x=150–380, y=200–280 ── */}
         <g opacity={0.5 + p * 0.5}>
-          <rect x="200" y="10" width="160" height="70" rx="14"
+          <rect x="150" y="200" width="230" height="80" rx="14"
             fill="#1e3a8a" stroke="#60a5fa" strokeWidth="2"/>
-          {/* Tube bundle (tertiary water flows through these) */}
-          {[28, 45, 62].map((ty, i) => (
-            <line key={`cb-${i}`} x1="210" y1={ty} x2="350" y2={ty}
+          {[220, 240, 260, 280].map((ty, i) => (
+            <line key={`cb-${i}`} x1="160" y1={ty} x2="370" y2={ty}
               stroke="#0c1a3a" strokeWidth="1.5" opacity="0.7"/>
           ))}
-          {/* Condensation droplets */}
-          {p > 0.05 && [0, 1, 2, 3].map(i => (
-            <motion.circle key={`cd-${i}`} cx={225 + i * 32} r={2.5}
+          {p > 0.05 && [0,1,2,3,4].map(i => (
+            <motion.circle key={`cd-${i}`} cx={170 + i * 40} r={2.5}
               fill="#bae6fd"
-              animate={{ cy: [12, 78], opacity: [0.85, 0] }}
-              transition={{ duration: 1.6 - p * 0.5, repeat: Infinity, delay: i * 0.4, ease: 'easeIn' }}
+              animate={{ cy: [202, 278], opacity: [0.85, 0] }}
+              transition={{ duration: 1.6 - p * 0.5, repeat: Infinity, delay: i * 0.35, ease: 'easeIn' }}
             />
           ))}
-          <text x="280" y="100" fontSize="11" fill="#bae6fd" textAnchor="middle"
+          <text x="265" y="298" fontSize="11" fill="#bae6fd" textAnchor="middle"
             fontWeight="700" letterSpacing="1.2">CONDENSER</text>
         </g>
 
-        {/* ── SECONDARY LOOP — feedwater: Condenser → Feedwater Pump → SG ── (PWR & SMR) */}
+        {/* ── FEEDWATER: Condenser left → Feedwater Pump → SG bottom ── */}
         {hasPrimaryLoop && (
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M 200 50 L 110 50"
-            stroke="#1d4ed8"
-            strokeWidth={14}
-            dashLen={16} gapLen={16}
-            duration={waterSpeed}
-            sheen
+            d="M 150 240 L 90 240"
+            stroke="#1d4ed8" strokeWidth={14} dashLen={16} gapLen={16}
+            duration={waterSpeed} sheen
           />
         </g>
         )}
-        {/* ── BWR feedwater: Condenser → Feedwater Pump → reactor bottom ── */}
+        {/* BWR feedwater: Condenser → reactor bottom */}
         {isBWR && (
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M 200 50 L 155 50 L -30 50 L -30 96 L -60 96"
-            stroke="#1d4ed8"
-            strokeWidth={14}
-            dashLen={16} gapLen={16}
-            duration={waterSpeed}
-            sheen
+            d="M 150 240 L 80 240 L 80 180 L -60 180"
+            stroke="#1d4ed8" strokeWidth={14} dashLen={16} gapLen={16}
+            duration={waterSpeed} sheen
           />
         </g>
         )}
         {/* Feedwater pump */}
         <g opacity={0.5 + p * 0.5}>
-          <circle cx="155" cy="50" r="16"
+          <circle cx="90" cy="240" r="16"
             fill="#1e40af" stroke="#60a5fa" strokeWidth="2"/>
-          <motion.g
-            style={{ transformOrigin: '155px 50px' }}
-            animate={{ rotate: p < 0.02 ? 0 : -360 }}
-            transition={{ duration: lerp(6, 0.5, p), repeat: Infinity, ease: 'linear' }}
-          >
-            {[0, 90, 180, 270].map(deg => (
-              <line key={`fpb-${deg}`}
-                x1="155" y1="50"
-                x2={155 + Math.cos(deg * Math.PI / 180) * 11}
-                y2={50 + Math.sin(deg * Math.PI / 180) * 11}
-                stroke="#bfdbfe" strokeWidth="2" strokeLinecap="round"/>
-            ))}
-          </motion.g>
-          <text x="155" y="82" fontSize="9" fill="#93c5fd" textAnchor="middle"
+          <g transform="translate(90,240)">
+            <motion.g
+              style={{ transformOrigin: '0px 0px' }}
+              animate={{ rotate: p < 0.02 ? 0 : -360 }}
+              transition={{ duration: lerp(6, 0.5, p), repeat: Infinity, ease: 'linear' }}
+            >
+              {[0,90,180,270].map(deg => (
+                <line key={`fpb-${deg}`}
+                  x1="0" y1="0"
+                  x2={Math.cos(deg * Math.PI / 180) * 11}
+                  y2={Math.sin(deg * Math.PI / 180) * 11}
+                  stroke="#bfdbfe" strokeWidth="2" strokeLinecap="round"/>
+              ))}
+            </motion.g>
+          </g>
+          <text x="90" y="274" fontSize="9" fill="#93c5fd" textAnchor="middle"
             fontWeight="700" letterSpacing="0.6">FEEDWATER PUMP</text>
         </g>
-
-        {/* ── COOLING TOWER (placed under the generator on the right) ─── */}
-        <motion.path
-          d="M 418 310 L 444 88 Q 480 132 516 88 L 542 310 Z"
-          fill="url(#ra-tower-grad)" stroke="#0e7490" strokeWidth="2"
-          animate={{ opacity: 0.35 + p * 0.6 }}/>
-        <motion.ellipse cx="480" cy="88" rx="36" ry="9"
-          fill="#0e7490" stroke="#22d3ee" strokeWidth="1"
-          animate={{ opacity: 0.35 + p * 0.5 }}/>
-        {/* Vapor puffs */}
-        {towerVapor.map(v => (
-          <motion.circle key={v.id} cx={v.x + 180} cy={88} r={8 + p * 5}
-            fill="#bae6fd" fillOpacity={0.4 + p * 0.35}
-            initial={{ y: 0, opacity: 0.6, scale: 1 }}
-            animate={{ y: -160, opacity: 0, scale: 3 + p }}
-            transition={{ duration: 2.8 - p * 0.8, ease: 'easeOut' }}
-          />
-        ))}
-        <text x="480" y="280" fontSize="12" fill="#67e8f9" textAnchor="middle"
-          fontWeight="600" letterSpacing="0.5" opacity={0.35 + p * 0.65}>
-          COOLING TOWER
-        </text>
-
-        {/* ── TERTIARY LOOP — Condenser ↔ Cooling Tower ──
-            Open loop: warm water leaves the condenser, sheds its heat
-            to the atmosphere in the tower, then is pumped back. Never
-            touches the radioactive primary water.
-        ──────────────────────────────────────────────── */}
-        {/* Warm water out (condenser top-right → over the top → tower top inlet) */}
+        {hasPrimaryLoop && (
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M 360 20 L 400 20 L 400 60 L 480 60 L 480 88"
-            stroke="#0891b2"
-            strokeWidth={14}
-            dashLen={18} gapLen={16}
+            d="M 74 240 L 65 240 L 65 140"
+            stroke="#1d4ed8" strokeWidth={14} dashLen={16} gapLen={16}
+            duration={waterSpeed} sheen
+          />
+        </g>
+        )}
+
+        {/* ── COOLING TOWER — internal cx=460, shifted to SVG (520,-50) rim via translate ── */}
+        <g opacity={0.35 + p * 0.65} transform="translate(60,-100)">
+          <ellipse cx="460" cy="378" rx="88" ry="8" fill="#000" opacity="0.3"/>
+
+          <path
+            d="M 382,380 C 388,330 410,280 418,220 C 420,160 416,110 414,50 L 506,50 C 504,110 500,160 502,220 C 510,280 532,330 538,380 Z"
+            fill="url(#ra-tower-body)"
+          />
+          <path
+            d="M 382,380 C 388,330 410,280 418,220 C 420,160 416,110 414,50 L 506,50 C 504,110 500,160 502,220 C 510,280 532,330 538,380 Z"
+            fill="url(#ra-tower-edge-shadow)"
+          />
+
+          {[
+            { y: 330, rx: 70, ry: 3 },
+            { y: 270, rx: 54, ry: 2.5 },
+            { y: 210, rx: 46, ry: 2.5 },
+            { y: 150, rx: 50, ry: 2 },
+          ].map(({ y, rx, ry }, i) => (
+            <ellipse key={`hband-${i}`} cx="460" cy={y} rx={rx} ry={ry}
+              fill="none" stroke="#5a7a8e" strokeWidth="1.5" opacity="0.55"/>
+          ))}
+
+          <path d="M 400,380 C 405,330 424,280 427,220 C 429,160 425,110 424,50"
+            fill="none" stroke="#8ab0c8" strokeWidth="1.2" opacity="0.45"/>
+          <path d="M 520,380 C 515,330 494,280 491,220 C 489,160 493,110 494,50"
+            fill="none" stroke="#2a3c4e" strokeWidth="1.2" opacity="0.45"/>
+
+          {[
+            [[392,376],[383,352]], [[408,376],[394,352]], [[426,376],[410,352]],
+            [[494,376],[510,352]], [[512,376],[526,352]], [[528,376],[537,352]],
+          ].map(([[x1,y1],[x2,y2]], i) => (
+            <line key={`leg-${i}`} x1={x1} y1={y1} x2={x2} y2={y2}
+              stroke="#4a6070" strokeWidth="2.5" strokeLinecap="round" opacity="0.9"/>
+          ))}
+          <rect x="382" y="364" width="156" height="18" rx="3"
+            fill="url(#ra-tower-base-grad)" stroke="#4a6878" strokeWidth="1"/>
+
+          <ellipse cx="460" cy="50" rx="46" ry="10"
+            fill="url(#ra-tower-rim-grad)" stroke="#22d3ee" strokeWidth="1.5"/>
+
+          {p > 0.02 && (
+            <g filter="url(#ra-steam)">
+              {[0,1,2,3,4].map(i => (
+                <motion.circle key={`twb-${i}`}
+                  cx={436 + i * 12} r={3 + p * 2.5}
+                  fill="#e0f2fe" fillOpacity="0.85"
+                  animate={{ cy: [48, 22], opacity: [0.8, 0] }}
+                  transition={{
+                    duration: 1.6 - p * 0.5,
+                    repeat:   Infinity,
+                    delay:    i * 0.36,
+                    ease:     'easeOut',
+                  }}
+                />
+              ))}
+            </g>
+          )}
+
+          <text x="460" y="402" fontSize="13" fill="#67e8f9" textAnchor="middle"
+            fontWeight="700" letterSpacing="0.6">COOLING TOWER</text>
+        </g>
+
+        {/* ── TERTIARY LOOP — Condenser ↔ Cooling Tower ── */}
+        {/* Warm water: condenser right → tower inlet */}
+        <g opacity={pipeAlpha}>
+          <FlowPipe
+            d="M 380 240 L 414 240 L 414 120 L 520 120"
+            stroke="#0891b2" strokeWidth={14} dashLen={18} gapLen={16}
             duration={waterSpeed}
           />
         </g>
-        {/* Cool water return (tower base → around the bottom → pump → condenser bottom) */}
+        {/* Cool water return: tower base → pump → condenser */}
         <g opacity={pipeAlpha}>
           <FlowPipe
-            d="M 480 310 L 480 335 L 280 335 L 280 80"
-            stroke="#1d4ed8"
-            strokeWidth={14}
-            dashLen={18} gapLen={16}
-            duration={waterSpeed}
-            sheen
+            d="M 520 280 L 520 370 L 380 370 L 380 280"
+            stroke="#1d4ed8" strokeWidth={14} dashLen={18} gapLen={16}
+            duration={waterSpeed} sheen
           />
         </g>
-        {/* Tertiary circulating pump (on the cool-return leg, beneath the condenser) */}
+        {/* Tertiary circulating pump */}
         <g opacity={0.5 + p * 0.5}>
-          <circle cx="380" cy="335" r="12"
+          <circle cx="420" cy="370" r="13"
             fill="#1e40af" stroke="#60a5fa" strokeWidth="2"/>
-          <motion.g
-            style={{ transformOrigin: '380px 335px' }}
-            animate={{ rotate: p < 0.02 ? 0 : 360 }}
-            transition={{ duration: lerp(6, 0.5, p), repeat: Infinity, ease: 'linear' }}
-          >
-            {[0, 90, 180, 270].map(deg => (
-              <line key={`tpb-${deg}`}
-                x1="380" y1="335"
-                x2={380 + Math.cos(deg * Math.PI / 180) * 8}
-                y2={335 + Math.sin(deg * Math.PI / 180) * 8}
-                stroke="#bfdbfe" strokeWidth="2" strokeLinecap="round"/>
-            ))}
-          </motion.g>
+          <g transform="translate(420,370)">
+            <motion.g
+              style={{ transformOrigin: '0px 0px' }}
+              animate={{ rotate: p < 0.02 ? 0 : 360 }}
+              transition={{ duration: lerp(6, 0.5, p), repeat: Infinity, ease: 'linear' }}
+            >
+              {[0, 90, 180, 270].map(deg => (
+                <line key={`tpb-${deg}`}
+                  x1="0" y1="0"
+                  x2={Math.cos(deg * Math.PI / 180) * 9}
+                  y2={Math.sin(deg * Math.PI / 180) * 9}
+                  stroke="#bfdbfe" strokeWidth="2" strokeLinecap="round"/>
+              ))}
+            </motion.g>
+          </g>
+          <text x="420" y="390" fontSize="9" fill="#93c5fd" textAnchor="middle"
+            fontWeight="700" letterSpacing="0.6">COOLING PUMP</text>
         </g>
 
         {/* ── SMR INTEGRAL VESSEL OVERLAY + MODULAR BADGE ──
@@ -679,29 +764,19 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
         </g>
         )}
 
-        {/* ── PIPE JOINT FLANGES ─────────────────── */}
-        {/* Primary hot leg exiting reactor top */}
-        <circle cx="-60" cy="-96" r="9" fill="#7f1d1d" stroke="#ef4444" strokeWidth="1.5"
-          opacity={pipeAlpha}/>
-        {/* Primary cold leg entering reactor bottom */}
-        <circle cx="-60" cy="96" r="9" fill="#7f1d1d" stroke="#ef4444" strokeWidth="1.5"
-          opacity={pipeAlpha}/>
-        {/* Hot steam entering turbine */}
-        <circle cx="192" cy="-220" r="9" fill="#475569" stroke="#64748b" strokeWidth="1.5"
-          opacity={pipeAlpha}/>
-        {/* Spent steam leaving turbine */}
-        <circle cx="270" cy="-155" r="9" fill="#475569" stroke="#64748b" strokeWidth="1.5"
-          opacity={pipeAlpha}/>
-        {/* Spent steam entering condenser */}
-        <circle cx="270" cy="10" r="7" fill="#1e3a8a" stroke="#60a5fa" strokeWidth="1.5"
-          opacity={pipeAlpha}/>
+        {/* ── PIPE JOINT FLANGES ── */}
+        <circle cx="-60" cy="-180" r="9" fill="#7f1d1d" stroke="#ef4444" strokeWidth="1.5" opacity={pipeAlpha}/>
+        <circle cx="-62" cy="162" r="9" fill="#7f1d1d" stroke="#ef4444" strokeWidth="1.5" opacity={pipeAlpha}/>
+        <circle cx="180" cy="-260" r="9" fill="#475569" stroke="#64748b" strokeWidth="1.5" opacity={pipeAlpha}/>
+        <circle cx="260" cy="-190" r="9" fill="#475569" stroke="#64748b" strokeWidth="1.5" opacity={pipeAlpha}/>
+        <circle cx="260" cy="200" r="7" fill="#1e3a8a" stroke="#60a5fa" strokeWidth="1.5" opacity={pipeAlpha}/>
 
-        {/* ── IDLE PROMPT ────────────────────────── */}
+        {/* ── IDLE PROMPT ──────────────────────────────────────── */}
         {power < 2 && (
           <g>
-            <rect x="-280" y="288" width="240" height="36" rx="10"
+            <rect x="-280" y="380" width="280" height="36" rx="10"
               fill="#1e293b" fillOpacity="0.9" stroke="#334155" strokeWidth="1"/>
-            <text x="-160" y="312" fontSize="13" fill="#94a3b8"
+            <text x="-140" y="404" fontSize="13" fill="#94a3b8"
               textAnchor="middle" fontStyle="italic">
               Raise power to run the plant
             </text>
@@ -709,27 +784,49 @@ const ReactorAnimation = ({ power, onPowerChange, reactorType = 'PWR' }) => {
         )}
       </svg>
 
-      {/* ── POWER SLIDER ──────────────────────────── */}
-      <div className="ra-slider-bar">
-        <span className="ra-slider-label">Reactor Power</span>
-        <div className="ra-slider-track">
-          <input
-            type="range"
-            min="0" max="100"
-            value={power}
-            onChange={e => onPowerChange(Number(e.target.value))}
-            className="ra-slider"
-          />
-          <div className="ra-slider-fill" style={{ width: `${power}%` }}/>
+      {/* ── UNIFIED CONTROL DASHBOARD (top-right overlay) ───────────────
+          Combines the live thermal/electrical output readout with the
+          reactor-power slider into a single visual panel. ───────────── */}
+      <div className="ra-dashboard">
+        <div className="ra-dash-title">CONTROL DASHBOARD</div>
+
+        <div className="ra-dash-metric">
+          <span className="ra-dash-mlabel">THERMAL</span>
+          <span className="ra-dash-mvalue ra-dash-thermal">
+            {Math.round(power * 30)}<em> MWt</em>
+          </span>
         </div>
-        <motion.span
-          className="ra-slider-pct"
-          animate={{ color: power > 80 ? '#f97316' : power > 40 ? '#fbbf24' : '#60a5fa' }}
-          transition={{ duration: 0.3 }}
-        >
-          {power}%
-        </motion.span>
-        <span className="ra-slider-mw">{Math.round(power * 12)} MW</span>
+        <div className="ra-dash-divider"/>
+        <div className="ra-dash-metric">
+          <span className="ra-dash-mlabel">ELECTRICAL <small>(×0.33)</small></span>
+          <span className="ra-dash-mvalue ra-dash-elec">
+            {Math.round(power * 30 * 0.33)}<em> MWe</em>
+          </span>
+        </div>
+        <div className="ra-dash-foot">33% thermal efficiency · 220 kV AC</div>
+
+        <div className="ra-dash-slider">
+          <div className="ra-dash-slider-head">
+            <span className="ra-dash-slabel">REACTOR POWER</span>
+            <span
+              className="ra-dash-spct"
+              style={{ color: power > 80 ? '#f97316' : power > 40 ? '#fbbf24' : '#60a5fa' }}
+            >
+              {power}%
+            </span>
+          </div>
+          <div className="ra-slider-track">
+            <input
+              type="range"
+              min="0" max="100"
+              value={power}
+              onChange={e => onPowerChange(Number(e.target.value))}
+              className="ra-slider"
+            />
+            <div className="ra-slider-fill" style={{ width: `${power}%` }}/>
+          </div>
+          <div className="ra-dash-mw">{Math.round(power * 12)} MW · grid output</div>
+        </div>
       </div>
     </div>
   );

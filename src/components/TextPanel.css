@@ -3,8 +3,7 @@
   background: #ffffff;
   border-radius: 12px;
   padding: 1.25rem;
-  border: 2px solid #1a1a1a;
-  box-shadow: 4px 4px 0px 0px #0f172a;
+  border: 1px solid var(--c-border, #e2e8f0);
   overflow-y: auto;
   max-height: 100%;
   scrollbar-width: thin;
@@ -241,7 +240,7 @@
 
 .enrich-row {
   display: grid;
-  grid-template-columns: 7rem 1fr 2.8rem auto;
+  grid-template-columns: 7rem 1fr 2.8rem 9rem;
   align-items: center;
   gap: 0.6rem;
 }

@@ -22,9 +22,9 @@ const BalanceScale = () => {
         >
           <div className="dmb-side-label">BEFORE FISSION</div>
           <div className="dmb-readout">
-            <span className="dmb-nuclide dmb-nuclide-u">⁹²U²³⁵</span>
+            <span className="dmb-nuclide dmb-nuclide-u"><sup>235</sup><sub>92</sub>U</span>
             <span className="dmb-plus">+</span>
-            <span className="dmb-nuclide dmb-nuclide-n">n⁰</span>
+            <span className="dmb-nuclide dmb-nuclide-n"><sup>1</sup><sub>0</sub>n</span>
           </div>
           <div className="dmb-mass dmb-mass-left">236.053 u</div>
         </motion.div>
@@ -78,11 +78,11 @@ const BalanceScale = () => {
         >
           <div className="dmb-side-label">AFTER FISSION</div>
           <div className="dmb-readout">
-            <span className="dmb-nuclide dmb-nuclide-ba">¹⁴¹Ba</span>
+            <span className="dmb-nuclide dmb-nuclide-ba"><sup>141</sup><sub>56</sub>Ba</span>
             <span className="dmb-plus">+</span>
-            <span className="dmb-nuclide dmb-nuclide-kr">⁹²Kr</span>
+            <span className="dmb-nuclide dmb-nuclide-kr"><sup>92</sup><sub>36</sub>Kr</span>
             <span className="dmb-plus">+</span>
-            <span className="dmb-nuclide dmb-nuclide-n">3n⁰</span>
+            <span className="dmb-nuclide dmb-nuclide-n">3 <sup>1</sup><sub>0</sub>n</span>
           </div>
           <div className="dmb-mass dmb-mass-right">235.867 u</div>
         </motion.div>

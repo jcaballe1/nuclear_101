@@ -21,7 +21,9 @@ const EnrichmentBar = () => (
         <span className="enrich-note">{note}</span>
       </div>
     ))}
-    <p className="enrich-caption">Bar widths are exaggerated for clarity — weapons grade is ~225× more enriched than reactor grade.</p>
+    <div className="enrich-safety-note" style={{ marginTop: '12px', fontSize: '0.85em', color: '#53575c', borderLeft: '3px solid #eff3f2', paddingLeft: '10px' }}>
+      <strong>Safety Fact:</strong> Because power plants use only 4% enriched fuel, a nuclear explosion is physically impossible. There is simply too much stable U-238 putting out the "fire".
+    </div>
   </div>
 );
 
@@ -52,7 +54,7 @@ const LIST_ITEMS = [
   {
     Icon: ExpandIcon,
     title: 'Isotopes: The Over-filled Balloon',
-    text: <><Term term="isotope" display="Isotopes" /> are atoms of the same element with different numbers of <Term term="neutrons" />. Most uranium is <Term term="Uranium-238" display="U-238" />, which acts like a thick, stable balloon. But <Term term="Uranium-235" display="U-235" /> is stretched to its absolute limit — one tiny tap from a <Term term="neutrons" display="neutron" /> makes it violently pop (<Term term="fission" />).</>,
+    text: <><Term term="isotope" display="Isotopes" /> are atoms of the same element with different numbers of <Term term="neutrons" />. Most uranium is <Term term="Uranium-238" display="U-238" />, acting like a thick, stable balloon that absorbs impacts. But <Term term="Uranium-235" display="U-235" /> is over-filled and stretched to its absolute limit, one tiny tap from a <Term term="neutrons" display="neutron" /> makes it violently pop (<Term term="fission" />).</>,
   },
   {
     Icon: FilterIcon,
@@ -148,7 +150,7 @@ const TextPanel = ({ isotopeType, showFission, onFissionDismiss, onFissionNext }
                 This process is called <strong>Nuclear Fission</strong>.
               </p>
               <button className="fission-next-btn" onClick={onFissionNext}>
-                Next: Explore Further the Nuclear Fission Process →
+                Next: Mass to Energy (E=mc²) →
               </button>
             </motion.div>
           )}
@@ -159,7 +161,7 @@ const TextPanel = ({ isotopeType, showFission, onFissionDismiss, onFissionNext }
         onClose={() => setShowOverlay(false)}
         imageSrc={`${import.meta.env.BASE_URL}real-world/scene1-fuel-pellet.jpg`}
         imageLabel="Uranium-235 fuel pellet held in a gloved hand"
-        caption="One fuel pellet holds the energy equivalent of approximately 1 ton of coal — small enough to balance on your fingertip."
+        caption="One fuel pellet holds the energy equivalent of approximately 1 ton of coal, small enough to balance on your fingertip."
       />
     </motion.div>
   );

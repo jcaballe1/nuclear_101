@@ -74,6 +74,20 @@
   border-radius: 4px;
 }
 
+.dmb-nuclide sup {
+  font-size: 0.6em;
+  vertical-align: super;
+  line-height: 0;
+  font-weight: 700;
+}
+
+.dmb-nuclide sub {
+  font-size: 0.6em;
+  vertical-align: sub;
+  line-height: 0;
+  font-weight: 700;
+}
+
 .dmb-nuclide-u  { color: #c4b5fd; background: rgba(196,181,253,0.12); }
 .dmb-nuclide-ba { color: #f9a8d4; background: rgba(249,168,212,0.12); }
 .dmb-nuclide-kr { color: #7dd3fc; background: rgba(125,211,252,0.12); }
@@ -136,7 +150,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.1rem;
-  box-shadow: 0 0 16px rgba(197,160,89,0.35), 3px 3px 0px 0px #7c5a1e;
+  box-shadow: 0 0 14px rgba(197,160,89,0.25);
 }
 
 .dmb-emc2-eq {
@@ -145,7 +159,6 @@
   font-weight: 700;
   font-style: italic;
   color: #fde68a;
-  text-shadow: 0 0 10px rgba(253,230,138,0.5);
 }
 
 .dmb-emc2-val {
@@ -197,7 +210,7 @@
   background: #0f172a;
   border: 2px solid #C5A059;
   border-radius: 14px;
-  box-shadow: 6px 6px 0px 0px #7c5a1e, 0 0 40px rgba(197,160,89,0.2);
+  box-shadow: 0 0 32px rgba(197,160,89,0.15);
   width: 100%;
   max-width: 580px;
   max-height: 85vh;
@@ -293,19 +306,19 @@
 }
 
 .dmb-op {
-  color: #64748b;
+  color: #94a3b8;
 }
 
 /* Accent colours for key numbers */
-.dmb-num-purple { color: #c4b5fd; text-shadow: 0 0 8px rgba(196,181,253,0.4); }
-.dmb-num-blue   { color: #7dd3fc; text-shadow: 0 0 8px rgba(125,211,252,0.4); }
-.dmb-num-red    { color: #f87171; text-shadow: 0 0 10px rgba(248,113,113,0.5); }
-.dmb-num-gold   { color: #fde68a; text-shadow: 0 0 10px rgba(253,230,138,0.5); }
-.dmb-num-orange { color: #fb923c; text-shadow: 0 0 10px rgba(251,146,60,0.5); }
+.dmb-num-purple { color: #c4b5fd; }
+.dmb-num-blue   { color: #7dd3fc; }
+.dmb-num-red    { color: #f87171; }
+.dmb-num-gold   { color: #fde68a; }
+.dmb-num-orange { color: #fb923c; }
 
 .dmb-step-text {
   font-size: 0.88rem;
-  color: #94a3b8;
+  color: #cbd5e1;
   line-height: 1.65;
   margin: 0;
 }
@@ -318,4 +331,16 @@
 
 .dmb-step-text strong {
   color: #e2e8f0;
+}
+
+/* ── Term component overrides inside dark modal ───────────────────── */
+.dmb-modal .glossary-term {
+  color: #fbbf24;
+  border-bottom-color: rgba(251, 191, 36, 0.45);
+}
+
+.dmb-modal .glossary-term:hover,
+.dmb-modal .glossary-term:focus {
+  color: #fde68a;
+  border-bottom-color: #fde68a;
 }

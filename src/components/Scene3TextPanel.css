@@ -2,13 +2,13 @@
   position: relative;
   background: #ffffff;
   border-radius: 12px;
-  padding: 1.75rem;
-  border: 2px solid #1a1a1a;
-  box-shadow: 4px 4px 0px 0px #0f172a;
+  padding: 1rem 1.2rem;
+  border: 1px solid #e2e8f0;
+  height: 100%;
+  max-height: 100vh;
   overflow-y: auto;
-  max-height: 100%;
   scrollbar-width: thin;
-  scrollbar-color: rgba(100, 116, 139, 0.3) rgba(241, 245, 249, 0.5);
+  scrollbar-color: rgba(100, 116, 139, 0.3) transparent;
 }
 
 .scene3-text-panel::-webkit-scrollbar {
@@ -16,19 +16,26 @@
 }
 
 .scene3-text-panel::-webkit-scrollbar-track {
-  background: rgba(241, 245, 249, 0.5);
+  background: transparent;
   border-radius: 10px;
 }
 
 .scene3-text-panel::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.3);
+  background: rgba(100, 116, 139, 0.28);
   border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.scene3-text-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.5);
+  background-clip: padding-box;
 }
 
 .text-content {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0.85rem;
 }
 
 .panel-title {
@@ -39,21 +46,63 @@
   margin-bottom: 0.5rem;
 }
 
-.concept-section,
-.criticality-section,
+.stages-list {
+  padding-left: 20px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.criticality-states-compact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.criticality-state-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.criticality-state-item .state-icon {
+  color: var(--state-color);
+  font-size: 1.2em;
+}
+
+.concept-section {
+  background: #F9F8F4;
+  padding: 0.85rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #C5A059;
+}
+
+.criticality-section {
+  background: #F9F8F4;
+  padding: 0.85rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #64748b;
+}
+
 .real-world-section {
   background: #F9F8F4;
-  padding: 1rem;
+  padding: 0.85rem 0.9rem;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
 }
 
 .concept-title {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   color: #1a1a1a;
   font-weight: 700;
   font-family: 'Lora', Georgia, serif;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.4rem;
 }
 
 .concept-text {
@@ -136,24 +185,29 @@
 }
 
 .live-feedback {
-  background: rgba(16, 185, 129, 0.05);
-  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12px;
   border-radius: 8px;
   border: 2px solid rgba(16, 185, 129, 0.2);
 }
 
 .feedback-title {
-  font-size: 1.1rem;
+  font-size: 1em;
   color: #1a1a1a;
   font-weight: 600;
-  margin-bottom: 0.85rem;
+  margin: 0 0 8px 0;
 }
 
 .feedback-items {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
   gap: 0.65rem;
-  margin-bottom: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.feedback-temp {
+  font-weight: bold;
 }
 
 .feedback-item {
@@ -243,4 +297,108 @@
 }
 @media (max-width: 600px) {
   .scene3-text-panel { padding: 1rem; }
+}
+
+/* ── Contextual zone card (live guidance while running) ───────────── */
+.s3-zone-card {
+  padding: 0.85rem 0.9rem;
+  border-radius: 8px;
+  border-left: 3px solid;
+}
+.s3-zone-title {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+}
+.s3-zone-body {
+  font-size: 0.84rem;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0 0 0.4rem;
+}
+.s3-zone-action {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ── k-factor explainer ─────────────────────────────────────── */
+.s3-k-explainer {
+  background: #F9F8F4;
+  padding: 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+.s3-k-title {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.35rem;
+}
+.s3-k-text {
+  font-size: 0.82rem;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0 0 0.5rem;
+}
+.s3-k-legend {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-wrap: wrap;
+}
+
+/* ── Neutron generation colour legend ────────────────────────── */
+.s3-color-legend {
+  background: #F9F8F4;
+  padding: 0.75rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+.s3-color-legend-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #64748b;
+  margin: 0 0 0.4rem;
+}
+.s3-color-legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font-size: 0.78rem;
+  color: #475569;
+}
+.s3-legend-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* ── CTA prompt in idle state ──────────────────────────────── */
+.s3-cta-hint {
+  font-size: 0.82rem;
+  color: #64748b;
+  text-align: center;
+  padding: 0.55rem 0.5rem;
+  background: #f1f5f9;
+  border-radius: 6px;
+  margin-top: 0;
+}
+
+/* ── Criticality state list dot ────────────────────────────── */
+.state-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
 }
